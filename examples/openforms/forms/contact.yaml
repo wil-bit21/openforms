@@ -1,0 +1,31 @@
+slug: contact
+title: Contact us
+description: Questions, feedback or a bug to report — we read every message.
+workflow: contact-triage
+settings:
+  public: true
+  submitLabel: Send message
+  confirmationMessage: Thanks! We usually reply within one business day.
+fields:
+  - key: name
+    type: text
+    label: Your name
+    required: true
+    validation: { maxLength: 100 }
+  - key: email
+    type: email
+    label: Email
+    required: true
+  - key: topic
+    type: select
+    label: Topic
+    required: true
+    options:
+      - { value: question, label: A question }
+      - { value: feedback, label: Feedback }
+      - { value: bug, label: A bug }
+  - key: message
+    type: textarea
+    label: Message
+    required: true
+    validation: { minLength: 10, maxLength: 5000 }

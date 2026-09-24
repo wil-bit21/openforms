@@ -1,0 +1,38 @@
+slug: contact-triage
+title: Contact triage
+initial: open
+states:
+  - { key: open, label: Open, color: blue }
+  - { key: in_progress, label: In progress, color: yellow }
+  - { key: resolved, label: Resolved, color: green, terminal: true }
+  - { key: spam, label: Spam, color: gray, terminal: true }
+fields:
+  - { key: reply, type: textarea, label: Reply }
+onSubmit:
+  - { type: assign, role: reviewer }
+transitions:
+  - key: start
+    label: Start working
+    from: [open]
+    to: in_progress
+    guard: { roles: [reviewer] }
+  - key: resolve
+    label: Resolve
+    from: [open, in_progress]
+    to: resolved
+    guard: { roles: [reviewer], requireFields: [reply] }
+    actions:
+      - type: email
+        to: "{{submission.data.email}}"
+        subject: "Re: your message"
+        body: |
+          Hi {{submission.data.name}},
+
+          {{submission.fields.reply}}
+
+          — The team
+  - key: spam
+    label: Mark as spam
+    from: [open]
+    to: spam
+    guard: { roles: [reviewer] }

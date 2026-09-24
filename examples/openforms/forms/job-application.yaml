@@ -1,0 +1,49 @@
+slug: job-application
+title: Job application
+description: Apply to join the team. It takes about two minutes.
+workflow: hiring
+settings:
+  public: true
+  submitLabel: Send application
+  confirmationMessage: Thanks for applying! We'll review your application and keep you posted.
+fields:
+  - key: name
+    type: text
+    label: Full name
+    required: true
+    placeholder: Ada Lovelace
+    validation: { minLength: 2, maxLength: 100 }
+  - key: email
+    type: email
+    label: Email
+    required: true
+    placeholder: ada@example.com
+    help: We'll send status updates here.
+  - key: role
+    type: select
+    label: Role
+    required: true
+    options:
+      - { value: engineer, label: Engineer }
+      - { value: designer, label: Designer }
+      - { value: product, label: Product manager }
+  - key: years
+    type: number
+    label: Years of experience
+    required: true
+    validation: { min: 0, max: 50 }
+  - key: portfolio
+    type: url
+    label: Portfolio URL
+    help: A link to your best work.
+    required: true
+    showIf: { field: role, equals: designer }
+  - key: coverLetter
+    type: textarea
+    label: Why do you want to join?
+    placeholder: A few sentences are plenty.
+    validation: { maxLength: 2000 }
+  - key: consent
+    type: checkbox
+    label: I agree to my data being stored for this application.
+    required: true
