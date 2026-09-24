@@ -1,0 +1,201 @@
+[
+  {
+    "name": "no conditions: every field visible",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "a", "type": "text", "label": "A"},
+      {"key": "b", "type": "number", "label": "B"}
+    ]},
+    "data": {},
+    "visible": {"a": true, "b": true}
+  },
+  {
+    "name": "equals: controller matches",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}, {"value": "manager", "label": "Manager"}]},
+      {"key": "portfolio", "type": "url", "label": "Portfolio", "showIf": {"field": "role", "equals": "designer"}}
+    ]},
+    "data": {"role": "designer"},
+    "visible": {"role": true, "portfolio": true}
+  },
+  {
+    "name": "equals: controller differs",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}, {"value": "manager", "label": "Manager"}]},
+      {"key": "portfolio", "type": "url", "label": "Portfolio", "showIf": {"field": "role", "equals": "designer"}}
+    ]},
+    "data": {"role": "engineer"},
+    "visible": {"role": true, "portfolio": false}
+  },
+  {
+    "name": "equals: controller not provided hides",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}, {"value": "manager", "label": "Manager"}]},
+      {"key": "portfolio", "type": "url", "label": "Portfolio", "showIf": {"field": "role", "equals": "designer"}}
+    ]},
+    "data": {},
+    "visible": {"role": true, "portfolio": false}
+  },
+  {
+    "name": "notEquals: controller not provided shows",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}, {"value": "manager", "label": "Manager"}]},
+      {"key": "notes", "type": "text", "label": "Notes", "showIf": {"field": "role", "notEquals": "designer"}}
+    ]},
+    "data": {},
+    "visible": {"role": true, "notes": true}
+  },
+  {
+    "name": "notEquals: controller matches hides",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}, {"value": "manager", "label": "Manager"}]},
+      {"key": "notes", "type": "text", "label": "Notes", "showIf": {"field": "role", "notEquals": "designer"}}
+    ]},
+    "data": {"role": "designer"},
+    "visible": {"role": true, "notes": false}
+  },
+  {
+    "name": "in: controller is a member",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}, {"value": "manager", "label": "Manager"}]},
+      {"key": "team", "type": "text", "label": "Team", "showIf": {"field": "role", "in": ["engineer", "designer"]}}
+    ]},
+    "data": {"role": "engineer"},
+    "visible": {"role": true, "team": true}
+  },
+  {
+    "name": "in: controller is not a member",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}, {"value": "manager", "label": "Manager"}]},
+      {"key": "team", "type": "text", "label": "Team", "showIf": {"field": "role", "in": ["engineer", "designer"]}}
+    ]},
+    "data": {"role": "manager"},
+    "visible": {"role": true, "team": false}
+  },
+  {
+    "name": "chain: hidden controller hides dependants even if raw data matches",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "hasPet", "type": "checkbox", "label": "Has pet"},
+      {"key": "petKind", "type": "select", "label": "Pet kind", "options": [{"value": "dog", "label": "Dog"}, {"value": "cat", "label": "Cat"}], "showIf": {"field": "hasPet", "equals": true}},
+      {"key": "petName", "type": "text", "label": "Pet name", "showIf": {"field": "petKind", "equals": "dog"}}
+    ]},
+    "data": {"hasPet": false, "petKind": "dog", "petName": "Rex"},
+    "visible": {"hasPet": true, "petKind": false, "petName": false}
+  },
+  {
+    "name": "chain: all conditions hold",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "hasPet", "type": "checkbox", "label": "Has pet"},
+      {"key": "petKind", "type": "select", "label": "Pet kind", "options": [{"value": "dog", "label": "Dog"}, {"value": "cat", "label": "Cat"}], "showIf": {"field": "hasPet", "equals": true}},
+      {"key": "petName", "type": "text", "label": "Pet name", "showIf": {"field": "petKind", "equals": "dog"}}
+    ]},
+    "data": {"hasPet": true, "petKind": "dog"},
+    "visible": {"hasPet": true, "petKind": true, "petName": true}
+  },
+  {
+    "name": "chain: middle condition fails",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "hasPet", "type": "checkbox", "label": "Has pet"},
+      {"key": "petKind", "type": "select", "label": "Pet kind", "options": [{"value": "dog", "label": "Dog"}, {"value": "cat", "label": "Cat"}], "showIf": {"field": "hasPet", "equals": true}},
+      {"key": "petName", "type": "text", "label": "Pet name", "showIf": {"field": "petKind", "equals": "dog"}}
+    ]},
+    "data": {"hasPet": true, "petKind": "cat"},
+    "visible": {"hasPet": true, "petKind": true, "petName": false}
+  },
+  {
+    "name": "invalid controller value counts as absent",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "hasPet", "type": "checkbox", "label": "Has pet"},
+      {"key": "petKind", "type": "select", "label": "Pet kind", "options": [{"value": "dog", "label": "Dog"}, {"value": "cat", "label": "Cat"}], "showIf": {"field": "hasPet", "equals": true}}
+    ]},
+    "data": {"hasPet": "yes"},
+    "visible": {"hasPet": true, "petKind": false}
+  },
+  {
+    "name": "hidden controller beats notEquals-on-absent",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "hasPet", "type": "checkbox", "label": "Has pet"},
+      {"key": "petKind", "type": "select", "label": "Pet kind", "options": [{"value": "dog", "label": "Dog"}, {"value": "cat", "label": "Cat"}], "showIf": {"field": "hasPet", "equals": true}},
+      {"key": "notDog", "type": "text", "label": "Not a dog", "showIf": {"field": "petKind", "notEquals": "dog"}}
+    ]},
+    "data": {"hasPet": false},
+    "visible": {"hasPet": true, "petKind": false, "notDog": false}
+  },
+  {
+    "name": "multiselect: equals means contains",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "skills", "type": "multiselect", "label": "Skills", "options": [{"value": "go", "label": "Go"}, {"value": "ts", "label": "TypeScript"}, {"value": "sql", "label": "SQL"}]},
+      {"key": "goYears", "type": "number", "label": "Years of Go", "showIf": {"field": "skills", "equals": "go"}},
+      {"key": "dbNotes", "type": "text", "label": "Database notes", "showIf": {"field": "skills", "in": ["sql"]}},
+      {"key": "noGo", "type": "text", "label": "Why not Go?", "showIf": {"field": "skills", "notEquals": "go"}}
+    ]},
+    "data": {"skills": ["ts", "go"]},
+    "visible": {"skills": true, "goYears": true, "dbNotes": false, "noGo": false}
+  },
+  {
+    "name": "multiselect: in means contains any; notEquals means does not contain",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "skills", "type": "multiselect", "label": "Skills", "options": [{"value": "go", "label": "Go"}, {"value": "ts", "label": "TypeScript"}, {"value": "sql", "label": "SQL"}]},
+      {"key": "goYears", "type": "number", "label": "Years of Go", "showIf": {"field": "skills", "equals": "go"}},
+      {"key": "dbNotes", "type": "text", "label": "Database notes", "showIf": {"field": "skills", "in": ["sql"]}},
+      {"key": "noGo", "type": "text", "label": "Why not Go?", "showIf": {"field": "skills", "notEquals": "go"}}
+    ]},
+    "data": {"skills": ["sql"]},
+    "visible": {"skills": true, "goYears": false, "dbNotes": true, "noGo": true}
+  },
+  {
+    "name": "multiselect: empty selection counts as absent",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "skills", "type": "multiselect", "label": "Skills", "options": [{"value": "go", "label": "Go"}, {"value": "ts", "label": "TypeScript"}, {"value": "sql", "label": "SQL"}]},
+      {"key": "goYears", "type": "number", "label": "Years of Go", "showIf": {"field": "skills", "equals": "go"}},
+      {"key": "dbNotes", "type": "text", "label": "Database notes", "showIf": {"field": "skills", "in": ["sql"]}},
+      {"key": "noGo", "type": "text", "label": "Why not Go?", "showIf": {"field": "skills", "notEquals": "go"}}
+    ]},
+    "data": {"skills": []},
+    "visible": {"skills": true, "goYears": false, "dbNotes": false, "noGo": true}
+  },
+  {
+    "name": "number equals uses numeric JSON equality",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "age", "type": "number", "label": "Age"},
+      {"key": "adultNote", "type": "text", "label": "Note", "showIf": {"field": "age", "equals": 18}}
+    ]},
+    "data": {"age": 18},
+    "visible": {"age": true, "adultNote": true}
+  },
+  {
+    "name": "number sent as string is invalid so condition fails",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "age", "type": "number", "label": "Age"},
+      {"key": "adultNote", "type": "text", "label": "Note", "showIf": {"field": "age", "equals": 18}}
+    ]},
+    "data": {"age": "18"},
+    "visible": {"age": true, "adultNote": false}
+  },
+  {
+    "name": "checkbox equals false",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "agree", "type": "checkbox", "label": "I agree"},
+      {"key": "why", "type": "textarea", "label": "Why not?", "showIf": {"field": "agree", "equals": false}}
+    ]},
+    "data": {"agree": false},
+    "visible": {"agree": true, "why": true}
+  },
+  {
+    "name": "checkbox not provided does not equal false",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "agree", "type": "checkbox", "label": "I agree"},
+      {"key": "why", "type": "textarea", "label": "Why not?", "showIf": {"field": "agree", "equals": false}}
+    ]},
+    "data": {},
+    "visible": {"agree": true, "why": false}
+  },
+  {
+    "name": "controller string value is trimmed before comparison",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "nickname", "type": "text", "label": "Nickname"},
+      {"key": "greeting", "type": "text", "label": "Greeting", "showIf": {"field": "nickname", "equals": "ada"}}
+    ]},
+    "data": {"nickname": "  ada  "},
+    "visible": {"nickname": true, "greeting": true}
+  }
+]
