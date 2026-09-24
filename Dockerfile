@@ -33,12 +33,14 @@ RUN uv export --frozen --no-dev --no-emit-project --no-hashes -o /dist/requireme
 FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
     OPENFORMS_HTTP_ADDR=:8080
 COPY --from=build /dist/ /tmp/dist/
 RUN pip install --no-cache-dir -r /tmp/dist/requirements.txt \
  && pip install --no-cache-dir --no-deps /tmp/dist/*.whl \
  && rm -rf /tmp/dist \
- && useradd --system --uid 65532 --no-create-home --shell /usr/sbin/nologin openforms \
+ && useradd --uid 65532 --no-create-home --shell /usr/sbin/nologin openforms \
  && python -c "import openforms._paths as p; assert (p.ui_dir() / 'admin' / 'index.html').is_file()"
 USER openforms
 EXPOSE 8080

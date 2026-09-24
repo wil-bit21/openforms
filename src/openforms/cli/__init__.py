@@ -4,6 +4,7 @@ CLI (init, validate, push, pull, diff) in one entry point."""
 from __future__ import annotations
 
 import asyncio
+import logging
 import sys
 from collections.abc import Awaitable
 from typing import Annotated
@@ -61,6 +62,8 @@ def serve() -> None:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
     host, port = settings.listen_host_port
+    # uvicorn configures only its own loggers; route the app's (seed, mail, jobs) to stderr too
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s: %(message)s")
     uvicorn.run(create_app(settings), host=host, port=port, log_level="info", proxy_headers=False)
 
 
