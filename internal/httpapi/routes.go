@@ -42,7 +42,13 @@ func NewRouter(d Deps) http.Handler {
 			WriteError(w, req, &APIError{Status: http.StatusMethodNotAllowed, Code: "bad_request", Message: "method not allowed"})
 		})
 		mountAuth(r, d)
-		// Plan 01 Task 10 adds the authenticated group (mountAdminUsers, mountAPIKeys).
+		// Public groups (no RequireAuth) are mounted here by later plans: mountPublic (03), mountPublicConfig (09).
+		r.Group(func(r chi.Router) {
+			r.Use(RequireAuth)
+			mountAdminUsers(r, d)
+			mountAPIKeys(r, d)
+			// Later plans add: mountDefinitions, mountSubmissions (03); mountWorkflow, mountJobs (04).
+		})
 	})
 	return r
 }
