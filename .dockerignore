@@ -2,7 +2,12 @@
 .github
 **/node_modules
 web/**/dist
-internal/webui/dist
+src/openforms/server/ui/*
+!src/openforms/server/ui/.gitkeep
+.venv
+**/__pycache__
+.pytest_cache
+.ruff_cache
 e2e
 bin
 docs

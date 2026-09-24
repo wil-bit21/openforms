@@ -1,17 +1,22 @@
-.PHONY: dev-db test lint tidy
+.PHONY: dev-db test lint fmt sync
+
+sync:
+	uv sync
 
 dev-db:
 	docker compose up -d postgres mailpit
 
 test:
-	go test ./... -count=1
+	uv run pytest
 
 lint:
-	go vet ./...
-	@test -z "$$(gofmt -l .)" || (echo "gofmt needed on:"; gofmt -l .; exit 1)
+	uv run ruff check
+	uv run ruff format --check
+	uv run pyright
 
-tidy:
-	go mod tidy
+fmt:
+	uv run ruff check --fix
+	uv run ruff format
 
 .PHONY: web web-test build up down e2e
 
@@ -21,8 +26,9 @@ web:
 web-test:
 	cd web && pnpm install --frozen-lockfile && pnpm typecheck && pnpm test
 
+# A wheel with the web apps inside (dist/openforms-*.whl).
 build: web
-	go build -o bin/openforms ./cmd/openforms
+	uv build --wheel
 
 up:
 	docker compose --profile app up -d --build

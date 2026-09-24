@@ -1,4 +1,5 @@
-// Copies web build outputs into internal/webui/dist so the Go binary can embed them.
+// Copies web build outputs into src/openforms/server/ui, where the Python server serves
+// them from (and the wheel packages them).
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -35,7 +36,7 @@ const invokedDirectly =
 
 if (invokedDirectly) {
   const webDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  const outDir = resolve(webDir, "..", "internal", "webui", "dist");
+  const outDir = resolve(webDir, "..", "src", "openforms", "server", "ui");
   const copied = copyDist(webDir, outDir);
   console.log(`copy-dist: ${copied.length ? copied.join(", ") : "nothing to copy"} → ${outDir}`);
 }

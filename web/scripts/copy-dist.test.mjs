@@ -8,7 +8,7 @@ import { copyDist } from "./copy-dist.mjs";
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), "of-copy-"));
   const web = join(root, "web");
-  const out = join(root, "internal", "webui", "dist");
+  const out = join(root, "src", "openforms", "server", "ui");
   mkdirSync(join(web, "apps", "hosted", "dist", "assets"), { recursive: true });
   writeFileSync(join(web, "apps", "hosted", "dist", "index.html"), "<html>hosted</html>");
   writeFileSync(join(web, "apps", "hosted", "dist", "assets", "app.js"), "console.log(1)");

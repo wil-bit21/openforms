@@ -1,12 +1,12 @@
 # @openforms/admin
 
-The openforms admin SPA, served by the Go binary at `/admin/*` (assets under `/_app/admin/`).
+The openforms admin SPA, served by the openforms server at `/admin/*` (assets under `/_app/admin/`).
 
 ## Develop
 
 ```bash
 docker compose up -d postgres mailpit
-go run ./cmd/openforms serve            # API on :8080
+uv run openforms serve                  # API on :8080 (needs OPENFORMS_DATABASE_URL)
 pnpm -C web/apps/admin dev              # http://localhost:5174/_app/admin/ (proxies /api → :8080)
 pnpm -C web/apps/admin test             # Vitest + Testing Library + MSW
 pnpm -C web/apps/admin typecheck

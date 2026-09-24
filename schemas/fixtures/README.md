@@ -1,7 +1,7 @@
 # Conformance fixtures
 
-Shared by the Go server (`internal/definition`) and the TypeScript SDK
-(`@openforms/sdk`). Both test suites iterate **every** case; the Go server is
+Shared by the Python server (`openforms.definition`) and the TypeScript SDK
+(`@openforms/sdk`). Both test suites iterate **every** case; the server is
 authoritative, and TS must agree on every case.
 
 - `visibility.json`: `[{ name, form, data, visible }]`. `visible` lists every field key.

@@ -1,9 +1,12 @@
 # CLI reference
 
-`openforms` is one binary: it runs the server and it manages definitions.
+`openforms` is one command: it runs the server and it manages definitions. It ships in the `openforms` Python package (Python ≥ 3.11):
 
 ```bash
-make build            # → bin/openforms
+pipx install openforms      # or: uv tool install openforms
+uvx openforms --help        # run without installing
+# from a checkout:
+uv run openforms --help
 # or, with Docker:
 docker run --rm openforms:dev --help
 ```

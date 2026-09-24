@@ -24,7 +24,7 @@ async function waitForHealthy(url: string, timeoutMs: number): Promise<void> {
 function createApiKey(): string {
   const out = execFileSync(
     "docker",
-    ["compose", "--profile", "app", "exec", "-T", "openforms", "/openforms", "admin", "create-api-key", "--name", `e2e-${Date.now()}`, "--roles", "admin"],
+    ["compose", "--profile", "app", "exec", "-T", "openforms", "openforms", "admin", "create-api-key", "--name", `e2e-${Date.now()}`, "--roles", "admin"],
     { cwd: REPO_ROOT, encoding: "utf8" },
   );
   const match = out.match(/^ofk_[A-Za-z0-9]+$/m);

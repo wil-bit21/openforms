@@ -142,6 +142,16 @@ export function verify(rawBody: Buffer, header: string | undefined, secret: stri
 }
 ```
 
+```python
+# Python
+import hashlib, hmac
+
+
+def verify(raw_body: bytes, header: str | None, secret: str) -> bool:
+    expected = "sha256=" + hmac.new(secret.encode(), raw_body, hashlib.sha256).hexdigest()
+    return header is not None and hmac.compare_digest(expected, header)
+```
+
 ```go
 // Go
 func Verify(body []byte, header, secret string) bool {

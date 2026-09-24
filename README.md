@@ -8,7 +8,7 @@ openforms is an open-source, self-hosted form platform for developers, and an al
 - **Submission workflows.** Every form can have a state machine with custom states, role and required-field guards, and actions (webhook, email, auto-assign) that run reliably in the background with retries.
 - **Headless first, hosted too.** Use the REST API, the TypeScript SDK or the React renderer, or share a hosted page (`/f/<slug>`) and embed it anywhere with two lines of HTML.
 - **A real admin UI.** A reviewer inbox, submission timelines, and visual editors for forms and workflows.
-- **One container.** A single Go binary with the web UI embedded, plus PostgreSQL.
+- **One container.** A single Python package (FastAPI + SQLAlchemy) with the web UI inside, plus PostgreSQL.
 
 ## Try it in two minutes
 
@@ -75,7 +75,7 @@ openforms validate && openforms push
 ## Architecture
 
 ```
-            ┌───────────────────── openforms (one Go binary) ─────────────────────┐
+            ┌──────────────── openforms (one Python process: FastAPI) ────────────┐
  browser ──▶│ /f, /s (hosted)  /admin (inbox + editors)  /demo  /embed.js         │
  your app ─▶│ /api/v1  ── definitions store ── submissions ── workflow engine    │
  CLI ──────▶│                                               └─▶ job queue ──▶ webhook / email / assign
@@ -90,21 +90,25 @@ Actions are written to the job queue in the same database transaction as the sta
 
 | Path | Contents |
 |---|---|
-| `cmd/openforms` | Binary entry point (server and CLI) |
-| `internal/` | Go packages: config, db, auth, definition, definitions, submissions, workflow, jobs, actions, httpapi, webui, cli |
-| `schemas/` | JSON Schemas and conformance fixtures shared by Go and TypeScript |
+| `src/openforms` | The Python package: `definition` (the definition language), `server` (`database`, `models`, `api`, `services`, `actions`, `workflow`), `cli` and `client` |
+| `tests/` | pytest suite (runs against PostgreSQL) |
+| `schemas/` | JSON Schemas and conformance fixtures shared by Python and TypeScript |
 | `web/` | pnpm workspace: `@openforms/sdk`, `@openforms/react`, embed script, hosted/admin/demo apps |
 | `examples/openforms` | The demo bundle loaded by `openforms seed --demo` |
 | `e2e/` | Playwright end-to-end tests |
 
 ## Development
 
-Requirements: Go ≥ 1.26, Node 22, pnpm 9, Docker.
+Requirements: Python ≥ 3.11 with [uv](https://docs.astral.sh/uv/), Node 22, pnpm 9, Docker.
 
 ```bash
+make sync        # uv sync: create .venv with the package (editable) and dev tools
 make dev-db      # start Postgres (port 54329) and Mailpit
-make test        # Go tests
+make test        # pytest
+make lint        # ruff + pyright
 make web-test    # TypeScript typecheck + tests
-make build       # build web apps and bin/openforms
+make build       # build the web apps and a wheel in dist/
 make e2e         # full stack + Playwright
 ```
+
+Run the server from source with `OPENFORMS_DATABASE_URL=postgres://openforms:openforms@localhost:54329/openforms?sslmode=disable uv run openforms serve`.

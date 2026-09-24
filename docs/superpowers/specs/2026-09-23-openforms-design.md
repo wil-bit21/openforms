@@ -49,6 +49,8 @@ Global rules:
 
 ## 3. Repository layout
 
+> **Plan 10:** the Go tree below (`cmd/`, `internal/`, `go.mod`) was replaced by the `src/openforms` Python package; see that plan's module map.
+
 ```
 openforms/
   go.mod, go.sum
@@ -367,6 +369,8 @@ Problems carry a JSON-pointer-ish `path` like `fields[2].showIf.field` or `trans
 - `source` records who created a version: `cli` (push), `ui` (admin editor), `api` (direct PUT), `seed`.
 
 ## 6. Go package contracts
+
+> **Plan 10:** these Go contracts now live in Python modules with the same behaviour (`openforms.definition`, `openforms.server.models.*`, `openforms.server.workflow`, `openforms.server.services.jobs`, `openforms.server.actions`, `openforms.client`, `openforms.cli`); see that plan's module map.
 
 These signatures are binding across plans. Package paths are under `github.com/openforms/openforms/`.
 

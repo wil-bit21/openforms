@@ -1,6 +1,6 @@
 # Self-hosting
 
-openforms is one container plus PostgreSQL 16. The web UI is compiled into the binary.
+openforms is one container plus PostgreSQL 16. The server is a Python (FastAPI) application and the web UI ships inside the package.
 
 ## Docker Compose (production)
 
@@ -45,7 +45,7 @@ volumes:
 Create the first admin:
 
 ```bash
-docker compose exec openforms /openforms admin create-user \
+docker compose exec openforms openforms admin create-user \
   --email you@example.com --name "Your Name" --password 'a-strong-password' --roles admin
 ```
 

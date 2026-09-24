@@ -21,15 +21,15 @@ The compose stack starts PostgreSQL, Mailpit (a local email catcher at http://lo
 
 Open http://localhost:8080/demo for a guided tour, or sign in at http://localhost:8080/admin.
 
-> Running without Docker? Build with `make build`, start Postgres, then run
-> `OPENFORMS_DATABASE_URL=postgres://… ./bin/openforms serve`. See [self-hosting](self-hosting.md).
+> Running without Docker? `pip install openforms` (or `make build` for a wheel with the web UI), start Postgres, then run
+> `OPENFORMS_DATABASE_URL=postgres://… openforms serve`. See [self-hosting](self-hosting.md).
 
 ## 2. Create an API key
 
 The CLI talks to the server with an API key. Create one with the `admin` role:
 
 ```bash
-docker compose exec openforms /openforms admin create-api-key --name my-laptop --roles admin
+docker compose exec openforms openforms admin create-api-key --name my-laptop --roles admin
 # ofk_2V9s…   ← shown once; copy it
 export OPENFORMS_URL=http://localhost:8080
 export OPENFORMS_API_KEY=ofk_2V9s…
@@ -39,7 +39,7 @@ You can also create keys in the admin UI under **API keys**.
 
 ## 3. Scaffold definitions
 
-Install the CLI (`make build` produces `bin/openforms`, or use the Docker image) and, in your own project:
+Install the CLI (`pipx install openforms`, or run it with `uvx openforms`) and, in your own project:
 
 ```bash
 openforms init
