@@ -16,3 +16,12 @@ node_modules/
 .idea/
 .vscode/
 .superpowers/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+/src/openforms/server/ui/*
+!/src/openforms/server/ui/.gitkeep
