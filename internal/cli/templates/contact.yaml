@@ -1,0 +1,44 @@
+slug: contact
+title: Contact us
+description: Questions, feedback or support requests. We usually reply within one working day.
+workflow: contact-triage
+settings:
+  public: true
+  submitLabel: Send message
+  confirmationMessage: Thanks for reaching out. We'll reply by email soon.
+fields:
+  - key: name
+    type: text
+    label: Your name
+    required: true
+    validation:
+      minLength: 2
+      maxLength: 100
+  - key: email
+    type: email
+    label: Email
+    required: true
+  - key: topic
+    type: select
+    label: Topic
+    required: true
+    options:
+      - value: support
+        label: Product support
+      - value: sales
+        label: Sales
+      - value: other
+        label: Something else
+  - key: orderNumber
+    type: text
+    label: Order number
+    help: Helps us find your purchase faster.
+    showIf:
+      field: topic
+      equals: support
+  - key: message
+    type: textarea
+    label: Message
+    required: true
+    validation:
+      maxLength: 5000

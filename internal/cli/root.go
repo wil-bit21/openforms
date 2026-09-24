@@ -23,5 +23,6 @@ func NewRootCmd() *cobra.Command {
 		SilenceErrors: false,
 	}
 	root.AddCommand(newServeCmd(), newMigrateCmd())
+	root.AddCommand(Commands(DefaultDeps())...)
 	return root
 }
