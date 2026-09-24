@@ -94,7 +94,7 @@ func TestWebhook_DeliversSignedTransitionEvent(t *testing.T) {
 			Assignee any            `json:"assignee"`
 		} `json:"submission"`
 		Transition *struct{ Key, Label, From, To string } `json:"transition"`
-		Form       struct{ Slug, Title string }            `json:"form"`
+		Form       struct{ Slug, Title string }           `json:"form"`
 	}
 	if err := json.Unmarshal(r.Body, &body); err != nil {
 		t.Fatal(err)

@@ -43,6 +43,8 @@ func Register(q *jobs.Queue, d Deps) {
 	}
 	r := &runner{d: d}
 	q.Register(KindWebhook, r.webhook)
+	q.Register(KindEmail, r.email)
+	q.Register(KindAssign, r.assign)
 	q.SetFailedHook(r.onFailed)
 }
 
