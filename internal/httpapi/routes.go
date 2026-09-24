@@ -51,6 +51,7 @@ func NewRouter(d Deps) http.Handler {
 		})
 		mountAuth(r, d)
 		mountPublic(r, d)
+		mountPublicConfig(r, d)
 		// Public groups (no RequireAuth) are mounted here by later plans: mountPublic (03), mountPublicConfig (09).
 		r.Group(func(r chi.Router) {
 			r.Use(RequireAuth)
