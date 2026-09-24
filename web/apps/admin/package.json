@@ -10,17 +10,24 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.1.1",
+    "@openforms/react": "workspace:^",
     "@openforms/sdk": "workspace:*",
     "@tanstack/react-query": "^5.62.0",
+    "@xyflow/react": "^12.12.0",
+    "ajv": "^8.20.0",
+    "diff": "^9.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/diff": "^8.0.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",

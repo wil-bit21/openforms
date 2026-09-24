@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { FormEditorPage } from "./editors/form/FormEditorPage";
+import { WorkflowEditorPage } from "./editors/workflow/WorkflowEditorPage";
 import { ApiKeysPage } from "./pages/ApiKeysPage";
 import { FormOverviewPage } from "./pages/FormOverviewPage";
 import { FormsPage } from "./pages/FormsPage";
@@ -26,4 +28,8 @@ export const routes: AdminRoute[] = [
   { path: "users", element: <UsersPage />, adminOnly: true },
   { path: "api-keys", element: <ApiKeysPage />, adminOnly: true },
   { path: "jobs", element: <JobsPage />, adminOnly: true },
+  { path: "forms/new", element: <FormEditorPage />, adminOnly: true },
+  { path: "forms/:slug/edit", element: <FormEditorPage />, adminOnly: true },
+  { path: "workflows/new", element: <WorkflowEditorPage />, adminOnly: true },
+  { path: "workflows/:slug/edit", element: <WorkflowEditorPage />, adminOnly: true },
 ];
