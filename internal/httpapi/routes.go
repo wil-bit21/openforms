@@ -12,6 +12,8 @@ import (
 
 	"github.com/openforms/openforms/internal/auth"
 	"github.com/openforms/openforms/internal/config"
+	"github.com/openforms/openforms/internal/definitions"
+	"github.com/openforms/openforms/internal/submissions"
 )
 
 // Deps are the services handlers use. Later plans add Defs, Subs, Engine and Queue (spec §6.11).
@@ -21,6 +23,8 @@ type Deps struct {
 	Auth   *auth.Service
 	Web    http.Handler // webui handler; may be nil
 	OrgID  uuid.UUID
+	Defs   *definitions.Store
+	Subs   *submissions.Service
 }
 
 // NewRouter builds the full HTTP handler: /healthz, /api/v1/*, and the web UI fallback.
@@ -42,11 +46,14 @@ func NewRouter(d Deps) http.Handler {
 			WriteError(w, req, &APIError{Status: http.StatusMethodNotAllowed, Code: "bad_request", Message: "method not allowed"})
 		})
 		mountAuth(r, d)
+		mountPublic(r, d)
 		// Public groups (no RequireAuth) are mounted here by later plans: mountPublic (03), mountPublicConfig (09).
 		r.Group(func(r chi.Router) {
 			r.Use(RequireAuth)
 			mountAdminUsers(r, d)
 			mountAPIKeys(r, d)
+			mountDefinitions(r, d)
+			mountSubmissions(r, d)
 			// Later plans add: mountDefinitions, mountSubmissions (03); mountWorkflow, mountJobs (04).
 		})
 	})

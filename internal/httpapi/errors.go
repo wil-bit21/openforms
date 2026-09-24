@@ -11,6 +11,8 @@ import (
 
 	"github.com/openforms/openforms/internal/auth"
 	"github.com/openforms/openforms/internal/definition"
+	"github.com/openforms/openforms/internal/definitions"
+	"github.com/openforms/openforms/internal/submissions"
 )
 
 // APIError is an error with an explicit HTTP status and envelope code.
@@ -38,6 +40,10 @@ var errorMappings = []errorMapping{
 	{auth.ErrInvalidCredentials, http.StatusUnauthorized, "invalid_credentials", "invalid email or password"},
 	{auth.ErrEmailTaken, http.StatusConflict, "email_taken", "a user with this email already exists"},
 	{auth.ErrNotFound, http.StatusNotFound, "not_found", "not found"},
+	{definitions.ErrNotFound, http.StatusNotFound, "not_found", "not found"},
+	{submissions.ErrNotFound, http.StatusNotFound, "not_found", "not found"},
+	{submissions.ErrFormNotPublic, http.StatusNotFound, "not_found", "not found"},
+	{submissions.ErrInvalidCursor, http.StatusBadRequest, "bad_request", "invalid cursor"},
 }
 
 func notFound(msg string) *APIError {

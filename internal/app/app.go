@@ -16,7 +16,9 @@ import (
 	"github.com/openforms/openforms/internal/auth"
 	"github.com/openforms/openforms/internal/config"
 	"github.com/openforms/openforms/internal/db"
+	"github.com/openforms/openforms/internal/definitions"
 	"github.com/openforms/openforms/internal/httpapi"
+	"github.com/openforms/openforms/internal/submissions"
 	"github.com/openforms/openforms/internal/webui"
 )
 
@@ -25,6 +27,8 @@ type App struct {
 	Pool    *pgxpool.Pool
 	Auth    *auth.Service
 	OrgID   uuid.UUID
+	Defs    *definitions.Store
+	Subs    *submissions.Service
 	Handler http.Handler
 }
 
@@ -48,8 +52,11 @@ func New(ctx context.Context, cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("ensure default org: %w", err)
 	}
 	a := &App{Config: cfg, Pool: pool, Auth: authSvc, OrgID: orgID}
+	a.Defs = definitions.NewStore(a.Pool)
+	a.Subs = submissions.NewService(a.Pool, a.Defs)
 	a.Handler = httpapi.NewRouter(httpapi.Deps{
 		Config: cfg, Pool: pool, Auth: authSvc, Web: webui.Handler(), OrgID: orgID,
+		Defs: a.Defs, Subs: a.Subs,
 	})
 	return a, nil
 }
