@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { DemoCredentials } from "../components/DemoCredentials";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { client } from "../api";
@@ -50,6 +51,12 @@ export function LoginPage() {
           {login.isPending ? "Signing in…" : "Sign in"}
         </button>
       </form>
+      <DemoCredentials
+        onPick={(email, password) => {
+          setEmail(email);
+          setPassword(password);
+        }}
+      />
     </main>
   );
 }

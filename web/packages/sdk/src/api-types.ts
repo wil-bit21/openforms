@@ -232,3 +232,8 @@ export interface CreatedApiKey {
   apiKey: ApiKey;
   key: string;
 }
+
+/** GET /api/v1/public/config */
+export interface PublicConfig {
+  demo: boolean;
+}

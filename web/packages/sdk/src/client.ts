@@ -1,4 +1,5 @@
 import type {
+  PublicConfig,
   ApiKey,
   ApplyItem,
   Bundle,
@@ -139,6 +140,11 @@ export class OpenFormsClient {
   // ---- Public (no auth) ----
   async getPublicForm(slug: string): Promise<FormDefinition> {
     return (await this.request<{ form: FormDefinition }>("GET", `/public/forms/${seg(slug)}`)).form;
+  }
+
+  /** GET /api/v1/public/config (unauthenticated). */
+  async getPublicConfig(): Promise<PublicConfig> {
+    return this.request<PublicConfig>("GET", "/public/config");
   }
 
   submitPublic(slug: string, data: Record<string, unknown>): Promise<PublicSubmitResult> {
