@@ -19,6 +19,7 @@
 | 07 | `2026-09-23-openforms-07-admin-app.md` | Admin SPA: login, inbox, detail, forms/workflows overview, users, keys, jobs | 06 |
 | 08 | `2026-09-23-openforms-08-visual-editors.md` | Form editor, workflow editor + diagram, version history/diff | 07 |
 | 09 | `2026-09-23-openforms-09-demo-packaging-e2e.md` | Examples, `seed --demo`, `/demo`, Docker image, CI, docs, Playwright E2E | all |
+| 10 | `2026-09-24-openforms-10-python-backend.md` | Replace the Go server + CLI with a Prefect-style Python package (FastAPI, SQLAlchemy async, Alembic, cyclopts); same API, schema, CLI | 01–09 |
 
 ## Execution waves (multi-agent)
 

@@ -21,6 +21,8 @@ Multi-tenancy/signup, billing, file-upload fields, payments, third-party integra
 
 ## 2. Tech stack & global constraints
 
+> **Superseded for the backend by Plan 10** (`plans/2026-09-24-openforms-10-python-backend.md`): the server and CLI are a Python package (FastAPI, SQLAlchemy 2 async + asyncpg, Alembic, cyclopts, uv). §3's backend layout and §6's Go package contracts map onto that plan's module map; §4, §5, §7, §8 and §10 stay binding.
+
 | Area | Choice |
 |---|---|
 | Backend | Go ≥ 1.24, module `github.com/openforms/openforms` at repo root |
