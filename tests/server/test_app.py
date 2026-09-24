@@ -79,3 +79,15 @@ async def test_create_app_requires_database_url():
     with pytest.raises(ConfigError, match="OPENFORMS_DATABASE_URL"):
         async with Lifespan(app):
             pass
+
+
+async def test_create_app_seeds_demo_when_asked(db_url):
+    from openforms.server.models import auth
+
+    app = create_app(test_settings(database_url=db_url, seed_demo=True, demo=True), run_worker=False)
+    async with Lifespan(app) as client, client:
+        ctx = app.state.ctx
+        async with ctx.db.session() as s:
+            assert len(await auth.list_users(s, ctx.org_id)) == 3
+        assert (await client.get("/api/v1/public/forms/job-application")).status_code == 200
+        assert (await client.get("/api/v1/public/config")).json() == {"demo": True}

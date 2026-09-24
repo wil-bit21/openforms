@@ -10,7 +10,7 @@ from openforms.server.api.ratelimit import RateLimiter
 from openforms.server.api.serialize import event_json, list_json, submission_json, version_json
 from openforms.server.models.definitions import VersionInfo
 from openforms.server.models.submissions import Event, Submission
-from tests.conftest import error_code, valid_data
+from tests.conftest import error_code, test_settings, valid_data
 from tests.samples import sample_form
 
 SUBMIT = "/api/v1/public/forms/{}/submissions"
@@ -266,3 +266,11 @@ def test_version_json_and_list_shapes():
     )
     assert compact(list_json([], "")) == '{"items":[],"nextCursor":null}'
     assert compact(list_json([1], "abc")) == '{"items":[1],"nextCursor":"abc"}'
+
+
+async def test_public_config(env):
+    for demo in (True, False):
+        env.ctx.settings = test_settings(demo=demo)
+        r = await env.do("GET", "/api/v1/public/config")
+        assert r.status_code == 200 and r.json() == {"demo": demo}
+        assert r.headers["cache-control"] == "no-store"

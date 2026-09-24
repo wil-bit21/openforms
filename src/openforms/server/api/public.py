@@ -27,6 +27,12 @@ def limiter(request: Request) -> RateLimiter:
     return lim
 
 
+@router.get("/config")
+async def public_config(request: Request) -> JSONResponse:
+    """Non-sensitive settings for anonymous clients (the login and /demo pages detect demo mode)."""
+    return JSONResponse({"demo": get_ctx(request).settings.demo}, headers={"Cache-Control": "no-store"})
+
+
 @router.get("/forms/{slug}")
 async def get_form(slug: str, request: Request) -> dict:
     ctx = get_ctx(request)
