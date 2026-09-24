@@ -13,6 +13,7 @@ RUN mkdir -p internal/webui/dist && touch internal/webui/dist/.gitkeep
 RUN cd web && pnpm install --frozen-lockfile && pnpm build
 # Refuse to produce an image without the UIs (the server would answer 503).
 RUN test -f internal/webui/dist/admin/index.html \
+ && test -f internal/webui/dist/demo/index.html \
  && test -f internal/webui/dist/hosted/index.html \
  && test -f internal/webui/dist/embed/embed.js
 
