@@ -18,8 +18,10 @@ import (
 	"github.com/openforms/openforms/internal/db"
 	"github.com/openforms/openforms/internal/definitions"
 	"github.com/openforms/openforms/internal/httpapi"
+	"github.com/openforms/openforms/internal/jobs"
 	"github.com/openforms/openforms/internal/submissions"
 	"github.com/openforms/openforms/internal/webui"
+	"github.com/openforms/openforms/internal/workflow"
 )
 
 type App struct {
@@ -29,6 +31,8 @@ type App struct {
 	OrgID   uuid.UUID
 	Defs    *definitions.Store
 	Subs    *submissions.Service
+	Queue   *jobs.Queue
+	Engine  *workflow.Engine
 	Handler http.Handler
 }
 
@@ -54,15 +58,24 @@ func New(ctx context.Context, cfg config.Config) (*App, error) {
 	a := &App{Config: cfg, Pool: pool, Auth: authSvc, OrgID: orgID}
 	a.Defs = definitions.NewStore(a.Pool)
 	a.Subs = submissions.NewService(a.Pool, a.Defs)
+	a.wireWorkflow()
 	a.Handler = httpapi.NewRouter(httpapi.Deps{
 		Config: cfg, Pool: pool, Auth: authSvc, Web: webui.Handler(), OrgID: orgID,
 		Defs: a.Defs, Subs: a.Subs,
+		Engine: a.Engine,
+		Queue:  a.Queue,
 	})
 	return a, nil
 }
 
 // Run serves HTTP until ctx is cancelled, then shuts down gracefully (10s).
 func (a *App) Run(ctx context.Context) error {
+	workerCtx, stopWorker := context.WithCancel(context.WithoutCancel(ctx))
+	waitWorker := a.runWorker(workerCtx)
+	defer func() {
+		stopWorker()
+		waitWorker()
+	}()
 	ln, err := net.Listen("tcp", a.Config.HTTPAddr)
 	if err != nil {
 		return fmt.Errorf("listen on %s: %w", a.Config.HTTPAddr, err)
