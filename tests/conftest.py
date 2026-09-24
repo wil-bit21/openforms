@@ -92,3 +92,74 @@ async def org_id(database):
 
     async with database.transaction() as s:
         return await auth.ensure_default_org(s)
+
+
+class Env:
+    """Port of Go's ``testutil.Env``: an isolated schema, the default org, an app and a client."""
+
+    def __init__(self, ctx, app, client):
+        self.ctx, self.app, self.client = ctx, app, client
+        self.db, self.org_id, self.settings = ctx.db, ctx.org_id, ctx.settings
+        self._seq = 0
+
+    async def api_key(self, *roles: str) -> str:
+        from openforms.server.models import auth
+
+        self._seq += 1
+        async with self.db.transaction() as s:
+            plaintext, _ = await auth.create_api_key(s, self.org_id, f"test-key-{self._seq}", list(roles))
+        return plaintext
+
+    async def user(self, email: str, *roles: str):
+        from openforms.server.models import auth
+
+        async with self.db.transaction() as s:
+            return await auth.create_user(s, self.org_id, email, email, "password123", list(roles))
+
+    async def do(self, method: str, path: str, api_key: str = "", body=None, **kw):
+        headers = kw.pop("headers", {})
+        if api_key:
+            headers["Authorization"] = "Bearer " + api_key
+        if body is None:
+            return await self.client.request(method, path, headers=headers, **kw)
+        if isinstance(body, (str, bytes)):
+            headers.setdefault("Content-Type", "application/json")
+            return await self.client.request(method, path, headers=headers, content=body, **kw)
+        return await self.client.request(method, path, headers=headers, json=body, **kw)
+
+
+def test_settings(**kw):
+    from openforms.settings import Settings
+
+    base = dict(
+        http_addr="127.0.0.1:0",
+        base_url="http://test.local",
+        smtp_port=1025,
+        smtp_from="openforms@test.local",
+        worker_concurrency=1,
+    )
+    base.update(kw)
+    return Settings(**base)
+
+
+test_settings.__test__ = False  # not a test
+
+
+def error_code(resp) -> str:
+    try:
+        return resp.json().get("error", {}).get("code", "")
+    except ValueError:
+        return ""
+
+
+@pytest.fixture
+async def env(database, org_id, tmp_path):
+    import httpx
+
+    from openforms.server.api.context import AppContext
+    from openforms.server.api.server import build_app
+
+    ctx = AppContext(settings=test_settings(), db=database, org_id=org_id, ui_dir=tmp_path / "ui")
+    app = build_app(ctx)
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test.local") as client:
+        yield Env(ctx, app, client)
