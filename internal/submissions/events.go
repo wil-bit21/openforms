@@ -3,10 +3,12 @@ package submissions
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/openforms/openforms/internal/auth"
 	"github.com/openforms/openforms/internal/db"
@@ -88,4 +90,42 @@ func InsertEvent(ctx context.Context, q db.DBTX, e Event) (Event, error) {
 		return Event{}, fmt.Errorf("insert event: %w", err)
 	}
 	return e, nil
+}
+
+// Events returns the submission's events, oldest first.
+func (s *Service) Events(ctx context.Context, orgID, id uuid.UUID) ([]Event, error) {
+	var exists bool
+	if err := s.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM submissions WHERE org_id = $1 AND id = $2)`, orgID, id).Scan(&exists); err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, ErrNotFound
+	}
+	rows, err := s.pool.Query(ctx, `SELECT id, submission_id, org_id, type,
+		COALESCE(from_state, ''), COALESCE(to_state, ''), COALESCE(transition, ''),
+		actor_type, actor_id, actor_name, payload, created_at
+		FROM submission_events WHERE submission_id = $1 ORDER BY id`, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []Event{}
+	for rows.Next() {
+		var (
+			e   Event
+			raw []byte
+		)
+		if err := rows.Scan(&e.ID, &e.SubmissionID, &e.OrgID, &e.Type, &e.FromState, &e.ToState, &e.Transition,
+			&e.ActorType, &e.ActorID, &e.ActorName, &raw, &e.CreatedAt); err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return nil, ErrNotFound
+			}
+			return nil, err
+		}
+		if err := json.Unmarshal(raw, &e.Payload); err != nil {
+			return nil, fmt.Errorf("decode event payload: %w", err)
+		}
+		out = append(out, e)
+	}
+	return out, rows.Err()
 }
