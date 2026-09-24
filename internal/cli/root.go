@@ -24,5 +24,6 @@ func NewRootCmd() *cobra.Command {
 	}
 	root.AddCommand(newServeCmd(), newMigrateCmd())
 	root.AddCommand(Commands(DefaultDeps())...)
+	root.AddCommand(newSeedCmd())
 	return root
 }

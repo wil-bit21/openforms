@@ -19,6 +19,7 @@ import (
 	"github.com/openforms/openforms/internal/definitions"
 	"github.com/openforms/openforms/internal/httpapi"
 	"github.com/openforms/openforms/internal/jobs"
+	"github.com/openforms/openforms/internal/seed"
 	"github.com/openforms/openforms/internal/submissions"
 	"github.com/openforms/openforms/internal/webui"
 	"github.com/openforms/openforms/internal/workflow"
@@ -59,6 +60,14 @@ func New(ctx context.Context, cfg config.Config) (*App, error) {
 	a.Defs = definitions.NewStore(a.Pool)
 	a.Subs = submissions.NewService(a.Pool, a.Defs)
 	a.wireWorkflow()
+	if seed.EnabledFromEnv() {
+		res, err := seed.Demo(ctx, a.Auth, a.Defs, a.OrgID)
+		if err != nil {
+			a.Close()
+			return nil, fmt.Errorf("seed demo: %w", err)
+		}
+		slog.Info("demo bundle seeded", "items", len(res.Apply.Items), "usersCreated", len(res.UsersCreated))
+	}
 	a.Handler = httpapi.NewRouter(httpapi.Deps{
 		Config: cfg, Pool: pool, Auth: authSvc, Web: webui.Handler(), OrgID: orgID,
 		Defs: a.Defs, Subs: a.Subs,
