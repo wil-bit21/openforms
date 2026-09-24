@@ -1,0 +1,8 @@
+created openforms.yaml
+created openforms/forms/contact.yaml
+created openforms/workflows/contact-triage.yaml
+
+Next steps:
+  openforms validate
+  export OPENFORMS_API_KEY=<key from `openforms admin create-api-key --name cli --roles admin`>
+  openforms push
