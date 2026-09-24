@@ -12,7 +12,9 @@ import (
 	"github.com/openforms/openforms/internal/auth"
 	"github.com/openforms/openforms/internal/definition"
 	"github.com/openforms/openforms/internal/definitions"
+	"github.com/openforms/openforms/internal/jobs"
 	"github.com/openforms/openforms/internal/submissions"
+	"github.com/openforms/openforms/internal/workflow"
 )
 
 // APIError is an error with an explicit HTTP status and envelope code.
@@ -44,6 +46,12 @@ var errorMappings = []errorMapping{
 	{submissions.ErrNotFound, http.StatusNotFound, "not_found", "not found"},
 	{submissions.ErrFormNotPublic, http.StatusNotFound, "not_found", "not found"},
 	{submissions.ErrInvalidCursor, http.StatusBadRequest, "bad_request", "invalid cursor"},
+	{workflow.ErrForbidden, http.StatusForbidden, "forbidden", "you are not allowed to perform this transition"},
+	{workflow.ErrUnknownTransition, http.StatusUnprocessableEntity, "unknown_transition", "unknown transition"},
+	{workflow.ErrInvalidState, http.StatusConflict, "invalid_state", "transition not allowed from the current state"},
+	{workflow.ErrStateConflict, http.StatusConflict, "state_conflict", "submission state changed; reload and retry"},
+	{workflow.ErrNoWorkflow, http.StatusConflict, "no_workflow", "this submission has no workflow"},
+	{jobs.ErrNotFound, http.StatusNotFound, "not_found", "job not found or not failed"},
 }
 
 func notFound(msg string) *APIError {

@@ -125,11 +125,9 @@ func (h *submissionHandlers) get(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// transitionsFor lists the transitions available to the caller.
-// Plan 03 has no workflow engine yet, so the list is always empty (spec §7.2);
-// Plan 04 replaces this body with Engine.Available.
+// transitionsFor lists the transitions available to the caller (Engine.Available).
 func (h *submissionHandlers) transitionsFor(r *http.Request, sub submissions.Submission) (any, error) {
-	return []any{}, nil
+	return availableTransitions(r, h.d, sub)
 }
 
 // lazyCSVWriter sets the download headers on the first write, so a failure

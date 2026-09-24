@@ -13,7 +13,9 @@ import (
 	"github.com/openforms/openforms/internal/auth"
 	"github.com/openforms/openforms/internal/config"
 	"github.com/openforms/openforms/internal/definitions"
+	"github.com/openforms/openforms/internal/jobs"
 	"github.com/openforms/openforms/internal/submissions"
+	"github.com/openforms/openforms/internal/workflow"
 )
 
 // Deps are the services handlers use. Later plans add Defs, Subs, Engine and Queue (spec §6.11).
@@ -25,6 +27,8 @@ type Deps struct {
 	OrgID  uuid.UUID
 	Defs   *definitions.Store
 	Subs   *submissions.Service
+	Engine *workflow.Engine
+	Queue  *jobs.Queue
 }
 
 // NewRouter builds the full HTTP handler: /healthz, /api/v1/*, and the web UI fallback.
@@ -54,6 +58,12 @@ func NewRouter(d Deps) http.Handler {
 			mountAPIKeys(r, d)
 			mountDefinitions(r, d)
 			mountSubmissions(r, d)
+			if d.Engine != nil {
+				mountWorkflow(r, d)
+			}
+			if d.Queue != nil {
+				mountJobs(r, d)
+			}
 			// Later plans add: mountDefinitions, mountSubmissions (03); mountWorkflow, mountJobs (04).
 		})
 	})
