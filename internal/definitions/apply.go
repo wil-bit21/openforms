@@ -2,6 +2,7 @@ package definitions
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -11,8 +12,13 @@ import (
 	"github.com/openforms/openforms/internal/definition"
 )
 
-// Apply writes a bundle of definitions in one transaction. A definition whose
-// canonical hash (and, for forms, workflow pin) is unchanged creates no version.
+// Apply writes a bundle of definitions in one transaction:
+//  1. validate every document and the bundle (cross-refs may resolve to existing workflows);
+//  2. upsert workflows, then forms (each form pins its workflow's current version);
+//  3. re-pin forms outside the bundle whose workflow just got a new version.
+//
+// Unchanged definitions create no version. DryRun reports the would-be result
+// and rolls back.
 func (s *Store) Apply(ctx context.Context, orgID uuid.UUID, in ApplyInput) (ApplyResult, error) {
 	if in.Source == "" {
 		in.Source = SourceAPI
@@ -23,15 +29,26 @@ func (s *Store) Apply(ctx context.Context, orgID uuid.UUID, in ApplyInput) (Appl
 	}
 	defer tx.Rollback(ctx) //nolint:errcheck // no-op after commit
 
+	if err := validateInput(ctx, tx, orgID, in); err != nil {
+		return ApplyResult{}, err
+	}
+
 	res := ApplyResult{Items: []ApplyItem{}}
+	newWorkflowVersions := map[string]uuid.UUID{}
 	for _, wf := range in.Workflows {
-		item, _, err := upsertWorkflow(ctx, tx, orgID, wf, in.Source, in.Actor)
+		item, vid, err := upsertWorkflow(ctx, tx, orgID, wf, in.Source, in.Actor)
 		if err != nil {
 			return ApplyResult{}, err
 		}
 		res.Items = append(res.Items, item)
+		if item.Changed {
+			newWorkflowVersions[wf.Slug] = vid
+		}
 	}
+
+	inBundle := map[string]bool{}
 	for _, f := range in.Forms {
+		inBundle[f.Slug] = true
 		pin, err := currentWorkflowVersion(ctx, tx, orgID, f.Workflow)
 		if err != nil {
 			return ApplyResult{}, err
@@ -41,6 +58,34 @@ func (s *Store) Apply(ctx context.Context, orgID uuid.UUID, in ApplyInput) (Appl
 			return ApplyResult{}, err
 		}
 		res.Items = append(res.Items, item)
+	}
+
+	for _, wf := range in.Workflows {
+		vid, ok := newWorkflowVersions[wf.Slug]
+		if !ok {
+			continue
+		}
+		deps, err := dependentForms(ctx, tx, orgID, wf.Slug)
+		if err != nil {
+			return ApplyResult{}, err
+		}
+		for _, f := range deps {
+			if inBundle[f.Slug] {
+				continue
+			}
+			pin := vid
+			item, err := upsertForm(ctx, tx, orgID, f, &pin, in.Source, in.Actor)
+			if err != nil {
+				return ApplyResult{}, err
+			}
+			if item.Changed {
+				res.Items = append(res.Items, item)
+			}
+		}
+	}
+
+	if in.DryRun {
+		return res, nil
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return ApplyResult{}, err
@@ -162,4 +207,30 @@ func currentWorkflowVersion(ctx context.Context, tx pgx.Tx, orgID uuid.UUID, slu
 		return nil, fmt.Errorf("workflow %q: %w", slug, ErrNotFound)
 	}
 	return id, err
+}
+
+// dependentForms returns the current definitions of forms that reference workflowSlug.
+func dependentForms(ctx context.Context, tx pgx.Tx, orgID uuid.UUID, workflowSlug string) ([]definition.Form, error) {
+	rows, err := tx.Query(ctx, `
+		SELECT v.definition
+		FROM forms f JOIN form_versions v ON v.id = f.current_version_id
+		WHERE f.org_id = $1 AND v.definition->>'workflow' = $2
+		ORDER BY f.slug`, orgID, workflowSlug)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []definition.Form
+	for rows.Next() {
+		var raw []byte
+		if err := rows.Scan(&raw); err != nil {
+			return nil, err
+		}
+		var f definition.Form
+		if err := json.Unmarshal(raw, &f); err != nil {
+			return nil, err
+		}
+		out = append(out, f)
+	}
+	return out, rows.Err()
 }
