@@ -75,3 +75,20 @@ async def database(db_url: str) -> AsyncIterator[Database]:
     db = await migrated_database(db_url)
     yield db
     await db.dispose()
+
+
+@pytest.fixture(autouse=True)
+def fast_bcrypt(monkeypatch):
+    """Keep tests fast; production uses cost 12."""
+    from openforms.server.models import auth
+
+    monkeypatch.setattr(auth, "BCRYPT_ROUNDS", 4)
+    monkeypatch.setattr(auth, "_dummy_hash", None)
+
+
+@pytest.fixture
+async def org_id(database):
+    from openforms.server.models import auth
+
+    async with database.transaction() as s:
+        return await auth.ensure_default_org(s)
