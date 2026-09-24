@@ -205,3 +205,10 @@ async def api(env):
 
 def valid_data():
     return {"name": "Ada Lovelace", "email": "ada@example.com", "topic": "support"}
+
+
+@pytest.fixture
+async def fx(database, org_id):
+    from tests.fixture import Fixture
+
+    return await Fixture(database, org_id, test_settings()).setup()

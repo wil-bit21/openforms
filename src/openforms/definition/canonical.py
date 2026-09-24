@@ -7,15 +7,15 @@ import json
 from typing import Any
 
 
-def _normalize(v: Any) -> Any:
+def normalize_json(v: Any) -> Any:
     if isinstance(v, bool) or v is None or isinstance(v, str):
         return v
     if isinstance(v, float) and v.is_integer() and abs(v) < 1e21:
         return int(v)
     if isinstance(v, dict):
-        return {str(k): _normalize(x) for k, x in v.items()}
+        return {str(k): normalize_json(x) for k, x in v.items()}
     if isinstance(v, (list, tuple)):
-        return [_normalize(x) for x in v]
+        return [normalize_json(x) for x in v]
     return v
 
 
@@ -24,7 +24,7 @@ def canonical_json(v: Any) -> bytes:
     Accepts definition objects (anything with ``to_dict``) or plain JSON values."""
     if hasattr(v, "to_dict"):
         v = v.to_dict()
-    text = json.dumps(_normalize(v), sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
+    text = json.dumps(normalize_json(v), sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
     # encoding/json escapes these two even with SetEscapeHTML(false)
     text = text.replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
     return text.encode("utf-8")

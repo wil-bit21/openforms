@@ -17,6 +17,7 @@ import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...definition import State, Workflow, validate_submission
+from ...definition.canonical import normalize_json
 from ...definition.values import format_number
 from ..exceptions import FormNotPublic, InvalidCursor, NotFound
 from ..schemas.core import PRINCIPAL_API_KEY, Principal
@@ -469,7 +470,7 @@ def csv_value(v: Any) -> str:
         return format_number(v)
     if isinstance(v, list):
         return ";".join(csv_value(p) for p in v)
-    return json.dumps(v, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return json.dumps(normalize_json(v), sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
 def csv_safe(s: str) -> str:
