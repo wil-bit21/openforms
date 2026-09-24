@@ -56,7 +56,7 @@ Each plan marks tasks with a **Parallel group** line. Tasks in the same group to
 
 ## Prerequisites (developer machine / CI)
 
-- Go ≥ 1.24, Node 22 LTS, pnpm 9 (`corepack enable`), Docker (for Postgres/Mailpit), Git.
+- Go ≥ 1.26, Node 22 LTS, pnpm 9 (`corepack enable`), Docker (for Postgres/Mailpit), Git.
 - `docker compose up -d postgres mailpit` before any DB-backed Go test (Plan 01 Task 1 creates the compose file).
 - Windows: run commands from Git Bash; all Makefile targets are POSIX-shell.
 
