@@ -163,3 +163,45 @@ async def env(database, org_id, tmp_path):
     app = build_app(ctx)
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test.local") as client:
         yield Env(ctx, app, client)
+
+
+@pytest.fixture
+async def api(env):
+    """Port of Go's ``newDefsSubsAPI``: an env plus an admin key and helpers to seed and submit."""
+    env.admin = await env.api_key("admin")
+
+    async def seed():
+        from openforms.server.models import definitions as defs
+        from tests.samples import sample_form, sample_workflow
+
+        internal = sample_form("internal", "review")
+        internal.settings.public = False
+        async with env.db.transaction() as s:
+            await defs.apply(
+                s,
+                env.org_id,
+                defs.ApplyInput(
+                    workflows=[sample_workflow("review")],
+                    forms=[sample_form("contact", "review"), sample_form("plain"), internal],
+                ),
+            )
+
+    async def create(slug: str = "contact", data=None):
+        from openforms.server.models import submissions as subs
+
+        async with env.db.transaction() as s:
+            return await subs.create(
+                s,
+                env.org_id,
+                slug,
+                data or valid_data(),
+                require_public=False,
+                on_created=env.ctx.services.get("on_created"),
+            )
+
+    env.seed, env.create = seed, create
+    return env
+
+
+def valid_data():
+    return {"name": "Ada Lovelace", "email": "ada@example.com", "topic": "support"}

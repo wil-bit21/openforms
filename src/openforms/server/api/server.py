@@ -20,7 +20,7 @@ from ...settings import Settings
 from ..database.alembic_commands import migrate
 from ..database.engine import Database
 from ..models import auth as auth_models
-from . import api_keys, auth, users
+from . import api_keys, auth, definitions, public, submissions, users
 from .context import AppContext
 from .dependencies import authenticate
 from .errors import install_error_handlers
@@ -47,6 +47,9 @@ def build_api(ctx: AppContext) -> FastAPI:
     api.include_router(auth.router)
     api.include_router(users.router)
     api.include_router(api_keys.router)
+    api.include_router(public.router)
+    api.include_router(definitions.router)
+    api.include_router(submissions.router)
     for register in API_ROUTERS:
         register(api)
     return api

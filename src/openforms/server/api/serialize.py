@@ -39,3 +39,48 @@ def api_key_json(k: ApiKey) -> dict[str, Any]:
         "lastUsedAt": ts(k.last_used_at),
         "revokedAt": ts(k.revoked_at),
     }
+
+
+def submission_json(s) -> dict[str, Any]:
+    return {
+        "id": str(s.id),
+        "form": s.form_slug,
+        "formVersion": s.form_version,
+        "state": s.state,
+        "stateLabel": s.state_label,
+        "terminal": s.terminal,
+        "data": s.data or {},
+        "fields": s.fields or {},
+        "assignee": None
+        if s.assignee_id is None
+        else {"id": str(s.assignee_id), "name": s.assignee_name, "email": s.assignee_email},
+        "createdAt": ts(s.created_at),
+        "updatedAt": ts(s.updated_at),
+    }
+
+
+def event_json(e) -> dict[str, Any]:
+    return {
+        "id": e.id,
+        "type": e.type,
+        "fromState": e.from_state or None,
+        "toState": e.to_state or None,
+        "transition": e.transition or None,
+        "actor": {"type": e.actor_type, "id": None if e.actor_id is None else str(e.actor_id), "name": e.actor_name},
+        "payload": e.payload or {},
+        "createdAt": ts(e.created_at),
+    }
+
+
+def version_json(v) -> dict[str, Any]:
+    return {
+        "version": v.version,
+        "hash": v.hash,
+        "source": v.source,
+        "createdBy": v.created_by,
+        "createdAt": ts(v.created_at),
+    }
+
+
+def list_json(items: list[Any], next_cursor: str) -> dict[str, Any]:
+    return {"items": items, "nextCursor": next_cursor or None}
