@@ -41,7 +41,8 @@ func NewRouter(d Deps) http.Handler {
 		r.MethodNotAllowed(func(w http.ResponseWriter, req *http.Request) {
 			WriteError(w, req, &APIError{Status: http.StatusMethodNotAllowed, Code: "bad_request", Message: "method not allowed"})
 		})
-		// Plan 01 Tasks 9–10 add: mountAuth(r, d); r.Group(RequireAuth: mountAdminUsers, mountAPIKeys).
+		mountAuth(r, d)
+		// Plan 01 Task 10 adds the authenticated group (mountAdminUsers, mountAPIKeys).
 	})
 	return r
 }
