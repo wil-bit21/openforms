@@ -1,0 +1,10 @@
+.git
+.github
+**/node_modules
+web/**/dist
+internal/webui/dist
+e2e
+bin
+docs
+*.log
+.env
