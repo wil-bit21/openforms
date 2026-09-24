@@ -10,13 +10,13 @@ import (
 
 func builtFS() fstest.MapFS {
 	return fstest.MapFS{
-		"admin/index.html":         {Data: []byte("<html>admin</html>")},
-		"admin/assets/app-123.js":  {Data: []byte("console.log('admin')")},
-		"admin/favicon.svg":        {Data: []byte("<svg/>")},
-		"hosted/index.html":        {Data: []byte("<html>hosted</html>")},
-		"demo/index.html":          {Data: []byte("<html>demo</html>")},
-		"embed/embed.js":           {Data: []byte("/*embed*/")},
-		".gitkeep":                 {Data: []byte{}},
+		"admin/index.html":        {Data: []byte("<html>admin</html>")},
+		"admin/assets/app-123.js": {Data: []byte("console.log('admin')")},
+		"admin/favicon.svg":       {Data: []byte("<svg/>")},
+		"hosted/index.html":       {Data: []byte("<html>hosted</html>")},
+		"demo/index.html":         {Data: []byte("<html>demo</html>")},
+		"embed/embed.js":          {Data: []byte("/*embed*/")},
+		".gitkeep":                {Data: []byte{}},
 	}
 }
 
@@ -29,13 +29,13 @@ func get(h http.Handler, method, path string) *httptest.ResponseRecorder {
 func TestSPAFallbacks(t *testing.T) {
 	h := newHandler(builtFS())
 	cases := map[string]string{
-		"/admin":                  "admin",
-		"/admin/":                 "admin",
-		"/admin/submissions/abc":  "admin",
-		"/f/contact":              "hosted",
-		"/s/1234":                 "hosted",
-		"/demo":                   "demo",
-		"/demo/anything":          "demo",
+		"/admin":                 "admin",
+		"/admin/":                "admin",
+		"/admin/submissions/abc": "admin",
+		"/f/contact":             "hosted",
+		"/s/1234":                "hosted",
+		"/demo":                  "demo",
+		"/demo/anything":         "demo",
 	}
 	for path, want := range cases {
 		rec := get(h, http.MethodGet, path)
