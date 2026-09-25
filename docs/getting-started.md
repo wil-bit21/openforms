@@ -21,7 +21,7 @@ The compose stack starts PostgreSQL, Mailpit (a local email catcher at http://lo
 
 Open http://localhost:8080/demo for a guided tour, or sign in at http://localhost:8080/admin.
 
-> Running without Docker? `pip install openforms` (or `make build` for a wheel with the web UI), start Postgres, then run
+> Running without Docker? Build a wheel with the web UI (`make build`) and `pip install dist/openforms-*.whl`, start Postgres, then run
 > `OPENFORMS_DATABASE_URL=postgres://… openforms serve`. See [self-hosting](self-hosting.md).
 
 ## 2. Create an API key
@@ -39,7 +39,7 @@ You can also create keys in the admin UI under **API keys**.
 
 ## 3. Scaffold definitions
 
-Install the CLI (`pipx install openforms`, or run it with `uvx openforms`) and, in your own project:
+Install the CLI (`uv tool install git+https://github.com/openforms/openforms`, or run it from the Docker image as shown in the [CLI reference](cli.md)) and, in your own project:
 
 ```bash
 openforms init

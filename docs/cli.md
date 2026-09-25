@@ -1,14 +1,13 @@
 # CLI reference
 
-`openforms` is one command: it runs the server and it manages definitions. It ships in the `openforms` Python package (Python ≥ 3.11):
+`openforms` is one command: it runs the server and it manages definitions. It is not published to PyPI; install it from the repository (Python ≥ 3.11) or use the Docker image:
 
 ```bash
-pipx install openforms      # or: uv tool install openforms
-uvx openforms --help        # run without installing
+uv tool install git+https://github.com/openforms/openforms   # or: pipx install git+https://…
 # from a checkout:
 uv run openforms --help
-# or, with Docker:
-docker run --rm openforms:dev --help
+# or, with Docker (mount your project to use push/pull/diff):
+docker run --rm -v "$PWD:/work" -w /work -e OPENFORMS_URL -e OPENFORMS_API_KEY openforms:dev push
 ```
 
 ## Connecting to a server
