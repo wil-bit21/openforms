@@ -112,3 +112,7 @@ make e2e         # full stack + Playwright
 ```
 
 Run the server from source with `OPENFORMS_DATABASE_URL=postgres://openforms:openforms@localhost:54329/openforms?sslmode=disable uv run openforms serve`.
+
+## License
+
+[MIT](LICENSE)

@@ -8,7 +8,8 @@ version = "0.1.0"
 description = "Self-hosted, developer-first forms with per-form submission workflows."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = [
     "alembic>=1.13,<2",
     "anyio>=4.4,<5",
@@ -42,7 +43,7 @@ dev = [
 artifacts = ["src/openforms/server/ui"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/src/openforms", "/schemas", "/examples/openforms", "/README.md", "/pyproject.toml"]
+include = ["/src/openforms", "/schemas", "/examples/openforms", "/README.md", "/LICENSE", "/pyproject.toml"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/openforms"]
