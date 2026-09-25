@@ -19,6 +19,7 @@
 | 07 | `2026-09-23-openforms-07-admin-app.md` | Admin SPA: login, inbox, detail, forms/workflows overview, users, keys, jobs | 06 |
 | 08 | `2026-09-23-openforms-08-visual-editors.md` | Form editor, workflow editor + diagram, version history/diff | 07 |
 | 09 | `2026-09-23-openforms-09-demo-packaging-e2e.md` | Examples, `seed --demo`, `/demo`, Docker image, CI, docs, Playwright E2E | all |
+| 10 | `2026-09-24-openforms-10-python-backend.md` | Replace the Go server + CLI with a Prefect-style Python package (FastAPI, SQLAlchemy async, Alembic, cyclopts); same API, schema, CLI | 01–09 |
 
 ## Execution waves (multi-agent)
 
@@ -56,7 +57,7 @@ Each plan marks tasks with a **Parallel group** line. Tasks in the same group to
 
 ## Prerequisites (developer machine / CI)
 
-- Go ≥ 1.24, Node 22 LTS, pnpm 9 (`corepack enable`), Docker (for Postgres/Mailpit), Git.
+- Go ≥ 1.26, Node 22 LTS, pnpm 9 (`corepack enable`), Docker (for Postgres/Mailpit), Git.
 - `docker compose up -d postgres mailpit` before any DB-backed Go test (Plan 01 Task 1 creates the compose file).
 - Windows: run commands from Git Bash; all Makefile targets are POSIX-shell.
 

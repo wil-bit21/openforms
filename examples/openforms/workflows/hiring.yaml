@@ -1,0 +1,76 @@
+slug: hiring
+title: Hiring pipeline
+initial: new
+states:
+  - { key: new, label: New, color: gray }
+  - { key: screening, label: Screening, color: blue }
+  - { key: interview, label: Interview, color: purple }
+  - { key: hired, label: Hired, color: green, terminal: true }
+  - { key: rejected, label: Rejected, color: red, terminal: true }
+fields:
+  - { key: score, type: number, label: Score }
+  - { key: rejectionReason, type: textarea, label: Rejection reason }
+onSubmit:
+  - { type: assign, role: reviewer }
+  - type: email
+    to: "{{submission.data.email}}"
+    subject: We got your application
+    body: |
+      Hi {{submission.data.name}},
+
+      Thanks for applying to join us. Your application is now in our hiring pipeline
+      and a reviewer has been assigned. We'll email you whenever its status changes.
+
+      — The hiring team
+transitions:
+  - key: screen
+    label: Start screening
+    from: [new]
+    to: screening
+    guard: { roles: [reviewer] }
+  - key: invite
+    label: Invite to interview
+    from: [screening]
+    to: interview
+    guard: { roles: [reviewer], requireFields: [score] }
+    actions:
+      - type: email
+        to: "{{submission.data.email}}"
+        subject: Let's talk — interview invitation
+        body: |
+          Hi {{submission.data.name}},
+
+          We enjoyed reading your application and would love to meet you.
+          We'll follow up shortly with times that work.
+
+          — The hiring team
+  - key: hire
+    label: Hire
+    from: [interview]
+    to: hired
+    guard: { roles: [hiring-manager] }
+    actions:
+      - type: email
+        to: "{{submission.data.email}}"
+        subject: Welcome aboard!
+        body: |
+          Hi {{submission.data.name}},
+
+          We're delighted to offer you the position. Expect a formal offer in your inbox soon.
+
+          — The hiring team
+  - key: reject
+    label: Reject
+    from: [new, screening, interview]
+    to: rejected
+    guard: { roles: [reviewer, hiring-manager], requireFields: [rejectionReason] }
+    actions:
+      - type: email
+        to: "{{submission.data.email}}"
+        subject: Your application
+        body: |
+          Hi {{submission.data.name}},
+
+          Thank you for your interest. {{submission.fields.rejectionReason}}
+
+          — The hiring team

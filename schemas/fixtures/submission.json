@@ -1,0 +1,424 @@
+[
+  {
+    "name": "valid text answer",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "required": true}
+    ]},
+    "data": {"name": "Ada"},
+    "clean": {"name": "Ada"},
+    "errorPaths": []
+  },
+  {
+    "name": "required field missing",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "required": true}
+    ]},
+    "data": {},
+    "clean": null,
+    "errorPaths": ["data.name"]
+  },
+  {
+    "name": "required field empty string",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "required": true}
+    ]},
+    "data": {"name": ""},
+    "clean": null,
+    "errorPaths": ["data.name"]
+  },
+  {
+    "name": "required field whitespace only",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "required": true}
+    ]},
+    "data": {"name": "   "},
+    "clean": null,
+    "errorPaths": ["data.name"]
+  },
+  {
+    "name": "strings are trimmed",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "required": true}
+    ]},
+    "data": {"name": "  Ada Lovelace  "},
+    "clean": {"name": "Ada Lovelace"},
+    "errorPaths": []
+  },
+  {
+    "name": "unknown keys are dropped",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "required": true}
+    ]},
+    "data": {"name": "Ada", "admin": true},
+    "clean": {"name": "Ada"},
+    "errorPaths": []
+  },
+  {
+    "name": "null optional value is dropped",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "nickname", "type": "text", "label": "Nickname"}
+    ]},
+    "data": {"nickname": null},
+    "clean": {},
+    "errorPaths": []
+  },
+  {
+    "name": "text must be a string",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "required": true}
+    ]},
+    "data": {"name": 5},
+    "clean": null,
+    "errorPaths": ["data.name"]
+  },
+  {
+    "name": "object for text field is rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "required": true}
+    ]},
+    "data": {"name": {"first": "Ada"}},
+    "clean": null,
+    "errorPaths": ["data.name"]
+  },
+  {
+    "name": "minLength violated",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "validation": {"minLength": 2, "maxLength": 5}}
+    ]},
+    "data": {"name": "A"},
+    "clean": null,
+    "errorPaths": ["data.name"]
+  },
+  {
+    "name": "maxLength violated",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "validation": {"minLength": 2, "maxLength": 5}}
+    ]},
+    "data": {"name": "Adalove"},
+    "clean": null,
+    "errorPaths": ["data.name"]
+  },
+  {
+    "name": "lengths are counted in code points",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "tag", "type": "text", "label": "Tag", "validation": {"maxLength": 2}}
+    ]},
+    "data": {"tag": "👍👍"},
+    "clean": {"tag": "👍👍"},
+    "errorPaths": []
+  },
+  {
+    "name": "pattern must match the whole value",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "code", "type": "text", "label": "Code", "validation": {"pattern": "[A-Z]{3}"}}
+    ]},
+    "data": {"code": "ABCD"},
+    "clean": null,
+    "errorPaths": ["data.code"]
+  },
+  {
+    "name": "pattern matches",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "code", "type": "text", "label": "Code", "validation": {"pattern": "[A-Z]{3}"}}
+    ]},
+    "data": {"code": "ABC"},
+    "clean": {"code": "ABC"},
+    "errorPaths": []
+  },
+  {
+    "name": "email valid",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "email", "type": "email", "label": "Email"}
+    ]},
+    "data": {"email": "ada@example.com"},
+    "clean": {"email": "ada@example.com"},
+    "errorPaths": []
+  },
+  {
+    "name": "email with display name rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "email", "type": "email", "label": "Email"}
+    ]},
+    "data": {"email": "Ada <ada@example.com>"},
+    "clean": null,
+    "errorPaths": ["data.email"]
+  },
+  {
+    "name": "email without at-sign rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "email", "type": "email", "label": "Email"}
+    ]},
+    "data": {"email": "ada.example.com"},
+    "clean": null,
+    "errorPaths": ["data.email"]
+  },
+  {
+    "name": "url valid",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "site", "type": "url", "label": "Site"}
+    ]},
+    "data": {"site": "https://example.com/portfolio?x=1"},
+    "clean": {"site": "https://example.com/portfolio?x=1"},
+    "errorPaths": []
+  },
+  {
+    "name": "url with ftp scheme rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "site", "type": "url", "label": "Site"}
+    ]},
+    "data": {"site": "ftp://example.com/file"},
+    "clean": null,
+    "errorPaths": ["data.site"]
+  },
+  {
+    "name": "url without scheme rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "site", "type": "url", "label": "Site"}
+    ]},
+    "data": {"site": "example.com"},
+    "clean": null,
+    "errorPaths": ["data.site"]
+  },
+  {
+    "name": "date leap day valid",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "start", "type": "date", "label": "Start"}
+    ]},
+    "data": {"start": "2024-02-29"},
+    "clean": {"start": "2024-02-29"},
+    "errorPaths": []
+  },
+  {
+    "name": "date that does not exist rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "start", "type": "date", "label": "Start"}
+    ]},
+    "data": {"start": "2023-02-29"},
+    "clean": null,
+    "errorPaths": ["data.start"]
+  },
+  {
+    "name": "date in wrong format rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "start", "type": "date", "label": "Start"}
+    ]},
+    "data": {"start": "29/02/2024"},
+    "clean": null,
+    "errorPaths": ["data.start"]
+  },
+  {
+    "name": "number within bounds",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "rating", "type": "number", "label": "Rating", "validation": {"min": 0, "max": 10}}
+    ]},
+    "data": {"rating": 3.5},
+    "clean": {"rating": 3.5},
+    "errorPaths": []
+  },
+  {
+    "name": "number bounds are inclusive",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "low", "type": "number", "label": "Low", "validation": {"min": 0, "max": 10}},
+      {"key": "high", "type": "number", "label": "High", "validation": {"min": 0, "max": 10}}
+    ]},
+    "data": {"low": 0, "high": 10},
+    "clean": {"low": 0, "high": 10},
+    "errorPaths": []
+  },
+  {
+    "name": "number above max rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "rating", "type": "number", "label": "Rating", "validation": {"min": 0, "max": 10}}
+    ]},
+    "data": {"rating": 10.5},
+    "clean": null,
+    "errorPaths": ["data.rating"]
+  },
+  {
+    "name": "number sent as string rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "rating", "type": "number", "label": "Rating"}
+    ]},
+    "data": {"rating": "5"},
+    "clean": null,
+    "errorPaths": ["data.rating"]
+  },
+  {
+    "name": "integer number preserved",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "age", "type": "number", "label": "Age"}
+    ]},
+    "data": {"age": 42},
+    "clean": {"age": 42},
+    "errorPaths": []
+  },
+  {
+    "name": "select valid option",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}]}
+    ]},
+    "data": {"role": "designer"},
+    "clean": {"role": "designer"},
+    "errorPaths": []
+  },
+  {
+    "name": "select unknown option rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}]}
+    ]},
+    "data": {"role": "ceo"},
+    "clean": null,
+    "errorPaths": ["data.role"]
+  },
+  {
+    "name": "multiselect valid keeps order",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "skills", "type": "multiselect", "label": "Skills", "options": [{"value": "go", "label": "Go"}, {"value": "ts", "label": "TypeScript"}]}
+    ]},
+    "data": {"skills": ["ts", "go"]},
+    "clean": {"skills": ["ts", "go"]},
+    "errorPaths": []
+  },
+  {
+    "name": "multiselect unknown option rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "skills", "type": "multiselect", "label": "Skills", "options": [{"value": "go", "label": "Go"}, {"value": "ts", "label": "TypeScript"}]}
+    ]},
+    "data": {"skills": ["go", "rust"]},
+    "clean": null,
+    "errorPaths": ["data.skills"]
+  },
+  {
+    "name": "multiselect duplicates rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "skills", "type": "multiselect", "label": "Skills", "options": [{"value": "go", "label": "Go"}, {"value": "ts", "label": "TypeScript"}]}
+    ]},
+    "data": {"skills": ["go", "go"]},
+    "clean": null,
+    "errorPaths": ["data.skills"]
+  },
+  {
+    "name": "multiselect sent as single string rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "skills", "type": "multiselect", "label": "Skills", "options": [{"value": "go", "label": "Go"}, {"value": "ts", "label": "TypeScript"}]}
+    ]},
+    "data": {"skills": "go"},
+    "clean": null,
+    "errorPaths": ["data.skills"]
+  },
+  {
+    "name": "multiselect empty and required rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "skills", "type": "multiselect", "label": "Skills", "required": true, "options": [{"value": "go", "label": "Go"}, {"value": "ts", "label": "TypeScript"}]}
+    ]},
+    "data": {"skills": []},
+    "clean": null,
+    "errorPaths": ["data.skills"]
+  },
+  {
+    "name": "multiselect empty and optional dropped",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "skills", "type": "multiselect", "label": "Skills", "options": [{"value": "go", "label": "Go"}, {"value": "ts", "label": "TypeScript"}]}
+    ]},
+    "data": {"skills": []},
+    "clean": {},
+    "errorPaths": []
+  },
+  {
+    "name": "required checkbox must be true",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "agree", "type": "checkbox", "label": "I agree", "required": true}
+    ]},
+    "data": {"agree": false},
+    "clean": null,
+    "errorPaths": ["data.agree"]
+  },
+  {
+    "name": "required checkbox true accepted",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "agree", "type": "checkbox", "label": "I agree", "required": true}
+    ]},
+    "data": {"agree": true},
+    "clean": {"agree": true},
+    "errorPaths": []
+  },
+  {
+    "name": "optional checkbox false is kept",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "newsletter", "type": "checkbox", "label": "Newsletter"}
+    ]},
+    "data": {"newsletter": false},
+    "clean": {"newsletter": false},
+    "errorPaths": []
+  },
+  {
+    "name": "checkbox sent as string rejected",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "newsletter", "type": "checkbox", "label": "Newsletter"}
+    ]},
+    "data": {"newsletter": "true"},
+    "clean": null,
+    "errorPaths": ["data.newsletter"]
+  },
+  {
+    "name": "hidden field value is dropped",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "required": true, "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}]},
+      {"key": "portfolio", "type": "url", "label": "Portfolio", "required": true, "showIf": {"field": "role", "equals": "designer"}}
+    ]},
+    "data": {"role": "engineer", "portfolio": "https://ada.dev"},
+    "clean": {"role": "engineer"},
+    "errorPaths": []
+  },
+  {
+    "name": "hidden required field is not enforced",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "required": true, "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}]},
+      {"key": "portfolio", "type": "url", "label": "Portfolio", "required": true, "showIf": {"field": "role", "equals": "designer"}}
+    ]},
+    "data": {"role": "engineer"},
+    "clean": {"role": "engineer"},
+    "errorPaths": []
+  },
+  {
+    "name": "visible required field is enforced",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "required": true, "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}]},
+      {"key": "portfolio", "type": "url", "label": "Portfolio", "required": true, "showIf": {"field": "role", "equals": "designer"}}
+    ]},
+    "data": {"role": "designer"},
+    "clean": null,
+    "errorPaths": ["data.portfolio"]
+  },
+  {
+    "name": "hidden field with invalid value is ignored",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "required": true, "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}]},
+      {"key": "portfolio", "type": "url", "label": "Portfolio", "required": true, "showIf": {"field": "role", "equals": "designer"}}
+    ]},
+    "data": {"role": "engineer", "portfolio": "not a url"},
+    "clean": {"role": "engineer"},
+    "errorPaths": []
+  },
+  {
+    "name": "invalid controller hides its dependant",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "role", "type": "select", "label": "Role", "required": true, "options": [{"value": "engineer", "label": "Engineer"}, {"value": "designer", "label": "Designer"}]},
+      {"key": "portfolio", "type": "url", "label": "Portfolio", "required": true, "showIf": {"field": "role", "equals": "designer"}}
+    ]},
+    "data": {"role": "ceo", "portfolio": "https://ada.dev"},
+    "clean": null,
+    "errorPaths": ["data.role"]
+  },
+  {
+    "name": "every invalid field is reported",
+    "form": {"slug": "t", "title": "T", "settings": {"public": true}, "fields": [
+      {"key": "name", "type": "text", "label": "Name", "required": true},
+      {"key": "email", "type": "email", "label": "Email", "required": true},
+      {"key": "age", "type": "number", "label": "Age"}
+    ]},
+    "data": {"email": "x", "age": "old"},
+    "clean": null,
+    "errorPaths": ["data.name", "data.email", "data.age"]
+  }
+]

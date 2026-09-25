@@ -8,11 +8,18 @@ node_modules/
 .env
 .env.*
 !.env.example
-/internal/webui/dist/*
-!/internal/webui/dist/.gitkeep
 /test-results/
 /playwright-report/
 .DS_Store
 .idea/
 .vscode/
 .superpowers/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+/src/openforms/server/ui/*
+!/src/openforms/server/ui/.gitkeep

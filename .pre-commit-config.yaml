@@ -1,0 +1,67 @@
+# Git hooks for openforms. Install once per clone:
+#   uv run pre-commit install
+# Run everything by hand:
+#   uv run pre-commit run --all-files
+#
+# Python tools run through `uv run`, so the versions pinned in uv.lock are the
+# ones used here, in CI and in your editor.
+
+exclude: |
+  (?x)^(
+    \.claude/scheduled_tasks\.lock|
+    src/openforms/server/ui/.*|
+    tests/cli/golden_init/.*|
+    tests/cli/yaml_golden\.json|
+    web/packages/sdk/src/generated/.*|
+    .*pnpm-lock\.yaml
+  )$
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.8.24
+    hooks:
+      # Keeps uv.lock in sync with pyproject.toml.
+      - id: uv-lock
+
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uv run --frozen ruff check --fix --force-exclude
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+      - id: ruff-format
+        name: ruff format
+        entry: uv run --frozen ruff format --force-exclude
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+      - id: pyright
+        name: pyright
+        entry: uv run --frozen pyright
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: web-typecheck
+        name: typecheck web and e2e (pnpm)
+        entry: bash -c 'pnpm -C web typecheck && pnpm -C e2e typecheck'
+        language: system
+        files: ^(web|e2e)/.*\.(ts|tsx)$
+        pass_filenames: false

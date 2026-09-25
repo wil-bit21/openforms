@@ -1,0 +1,15 @@
+.git
+.github
+**/node_modules
+web/**/dist
+src/openforms/server/ui/*
+!src/openforms/server/ui/.gitkeep
+.venv
+**/__pycache__
+.pytest_cache
+.ruff_cache
+e2e
+bin
+docs
+*.log
+.env

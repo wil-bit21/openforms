@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openforms.dev/schemas/form.schema.json",
+  "title": "openforms form definition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["slug", "title", "fields"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "slug": { "$ref": "#/$defs/slug" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "workflow": { "$ref": "#/$defs/slug" },
+    "settings": { "$ref": "#/$defs/settings" },
+    "fields": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": { "$ref": "#/$defs/field" }
+    }
+  },
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+    "key": { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$" },
+    "fieldType": {
+      "enum": ["text", "textarea", "email", "number", "select", "multiselect", "checkbox", "date", "url"]
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "public": { "type": "boolean" },
+        "submitLabel": { "type": "string", "maxLength": 60 },
+        "confirmationMessage": { "type": "string", "maxLength": 2000 }
+      }
+    },
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "label"],
+      "properties": {
+        "value": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "label": { "type": "string", "minLength": 1, "maxLength": 200 }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "minLength": { "type": "integer", "minimum": 0 },
+        "maxLength": { "type": "integer", "minimum": 0 },
+        "pattern": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "min": { "type": "number" },
+        "max": { "type": "number" }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field"],
+      "properties": {
+        "field": { "$ref": "#/$defs/key" },
+        "equals": {},
+        "notEquals": {},
+        "in": { "type": "array" }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "type", "label"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "type": { "$ref": "#/$defs/fieldType" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "help": { "type": "string", "maxLength": 1000 },
+        "placeholder": { "type": "string", "maxLength": 200 },
+        "required": { "type": "boolean" },
+        "options": { "type": "array", "maxItems": 500, "items": { "$ref": "#/$defs/option" } },
+        "validation": { "$ref": "#/$defs/validation" },
+        "showIf": { "$ref": "#/$defs/condition" }
+      }
+    }
+  }
+}

@@ -1,3 +1,5 @@
+# Development services: `docker compose up -d postgres mailpit`
+# Full stack (demo mode):  `docker compose --profile app up -d --build`
 services:
   postgres:
     image: postgres:16
@@ -12,7 +14,7 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U openforms -d openforms"]
       interval: 2s
-      timeout: 3s
+      timeout: 5s
       retries: 30
 
   mailpit:
@@ -21,17 +23,23 @@ services:
       - "1025:1025"
       - "8025:8025"
 
-  # Completed in Plan 09 (Dockerfile, demo seeding). Only started with `--profile app`.
   openforms:
     profiles: ["app"]
     build: .
+    image: openforms:dev
+    ports:
+      - "8080:8080"
     environment:
       OPENFORMS_DATABASE_URL: postgres://openforms:openforms@postgres:5432/openforms?sslmode=disable
       OPENFORMS_BASE_URL: http://localhost:8080
       OPENFORMS_SMTP_HOST: mailpit
       OPENFORMS_SMTP_PORT: "1025"
-    ports:
-      - "8080:8080"
+      OPENFORMS_SMTP_FROM: openforms@demo.local
+      OPENFORMS_WEBHOOK_SECRET: e2e-secret
+      OPENFORMS_DEMO: "true"
+      OPENFORMS_SEED_DEMO: "true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,4 +47,4 @@ services:
         condition: service_started
 
 volumes:
-  pgdata:
+  pgdata: {}
