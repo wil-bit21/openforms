@@ -3,7 +3,7 @@
 `openforms` is one command: it runs the server and it manages definitions. It is not published to PyPI; install it from the repository (Python ≥ 3.11) or use the Docker image:
 
 ```bash
-uv tool install git+https://github.com/openforms/openforms   # or: pipx install git+https://…
+uv tool install git+https://github.com/openforms/openforms
 # from a checkout:
 uv run openforms --help
 # or, with Docker (mount your project to use push/pull/diff):

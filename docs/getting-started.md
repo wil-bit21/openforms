@@ -21,7 +21,7 @@ The compose stack starts PostgreSQL, Mailpit (a local email catcher at http://lo
 
 Open http://localhost:8080/demo for a guided tour, or sign in at http://localhost:8080/admin.
 
-> Running without Docker? Build a wheel with the web UI (`make build`) and `pip install dist/openforms-*.whl`, start Postgres, then run
+> Running without Docker? Build a wheel with the web UI (`make build`) and install it with `uv tool install dist/openforms-*.whl`, start Postgres, then run
 > `OPENFORMS_DATABASE_URL=postgres://… openforms serve`. See [self-hosting](self-hosting.md).
 
 ## 2. Create an API key

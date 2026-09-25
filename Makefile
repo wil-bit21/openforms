@@ -1,7 +1,15 @@
-.PHONY: dev-db test lint fmt sync
+.PHONY: dev-db test lint fmt sync hooks pre-commit
 
 sync:
 	uv sync
+
+# Install the git hooks (once per clone).
+hooks:
+	uv run pre-commit install
+
+# Every hook on every file, as CI runs them.
+pre-commit:
+	uv run pre-commit run --all-files
 
 dev-db:
 	docker compose up -d postgres mailpit

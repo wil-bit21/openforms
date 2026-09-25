@@ -17,30 +17,32 @@ RUN test -f src/openforms/server/ui/admin/index.html \
  && test -f src/openforms/server/ui/hosted/index.html \
  && test -f src/openforms/server/ui/embed/embed.js
 
-# ---- Stage 2: build the wheel (with the web apps inside) ----------------------
+# ---- Stage 2: install the package and its locked dependencies with uv --------
 FROM python:3.12-slim AS build
-RUN pip install --no-cache-dir uv==0.8.*
+COPY --from=ghcr.io/astral-sh/uv:0.8 /uv /uvx /bin/
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_PROJECT_ENVIRONMENT=/opt/venv
 WORKDIR /src
-COPY pyproject.toml uv.lock README.md ./
+COPY pyproject.toml uv.lock README.md LICENSE ./
+# Dependencies first so this layer is cached until uv.lock changes.
+RUN uv sync --frozen --no-dev --no-install-project
 COPY schemas/ schemas/
 COPY examples/ examples/
 COPY src/ src/
 COPY --from=web /src/src/openforms/server/ui/ src/openforms/server/ui/
-RUN uv export --frozen --no-dev --no-emit-project --no-hashes -o /dist/requirements.txt \
- && uv build --wheel --out-dir /dist
+# The project itself (with the web UI inside), installed like a wheel rather than editable.
+RUN uv sync --frozen --no-dev --no-editable
 
-# ---- Stage 3: runtime -----------------------------------------------------------
+# ---- Stage 3: runtime ------------------------------------------------------------
 FROM python:3.12-slim
-ENV PYTHONDONTWRITEBYTECODE=1 \
+ENV PATH=/opt/venv/bin:$PATH \
+    PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_ROOT_USER_ACTION=ignore \
     OPENFORMS_HTTP_ADDR=:8080
-COPY --from=build /dist/ /tmp/dist/
-RUN pip install --no-cache-dir -r /tmp/dist/requirements.txt \
- && pip install --no-cache-dir --no-deps /tmp/dist/*.whl \
- && rm -rf /tmp/dist \
- && useradd --uid 65532 --no-create-home --shell /usr/sbin/nologin openforms \
+COPY --from=build /opt/venv /opt/venv
+RUN useradd --uid 65532 --no-create-home --shell /usr/sbin/nologin openforms \
  && python -c "import openforms._paths as p; assert (p.ui_dir() / 'admin' / 'index.html').is_file()"
 USER openforms
 EXPOSE 8080

@@ -101,8 +101,11 @@ Actions are written to the job queue in the same database transaction as the sta
 
 Requirements: Python ≥ 3.11 with [uv](https://docs.astral.sh/uv/), Node 22, pnpm 9, Docker.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow.
+
 ```bash
 make sync        # uv sync: create .venv with the package (editable) and dev tools
+make hooks       # install the pre-commit git hooks
 make dev-db      # start Postgres (port 54329) and Mailpit
 make test        # pytest
 make lint        # ruff + pyright

@@ -31,9 +31,11 @@ jobs:
           python-version: "3.12"
           enable-cache: true
       - run: uv sync --frozen
-      - run: uv run ruff check
-      - run: uv run ruff format --check
-      - run: uv run pyright
+      # ruff, pyright, uv.lock and file hygiene, exactly as the git hooks run them.
+      # The web typecheck hook runs in the web job.
+      - run: uv run pre-commit run --all-files --show-diff-on-failure
+        env:
+          SKIP: web-typecheck
       - run: uv run pytest
 
   web:
