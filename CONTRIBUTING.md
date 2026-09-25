@@ -34,6 +34,10 @@ uv run openforms serve           # http://localhost:8080
 
 For the web apps with hot reload, keep the server running and start an app's Vite dev server (for example `pnpm -C web/apps/admin dev`). Each app proxies `/api` to `:8080`. Run `make web` to build the apps into `src/openforms/server/ui`, where the server serves them.
 
+### Working with Claude Code
+
+The project settings (`.claude/settings.json`) enable the [Superpowers](https://github.com/obra/superpowers) plugin from `obra/superpowers-marketplace`. It adds skills for brainstorming, writing plans, test-driven development and systematic debugging, which is the workflow the plans in `docs/superpowers/` were written with. When you trust the folder, Claude Code offers to install it. To opt out for yourself, set `"superpowers@superpowers-marketplace": false` under `enabledPlugins` in `.claude/settings.local.json`.
+
 ## Dependencies
 
 ```bash
