@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     smtp_from: str = "openforms@localhost"
     webhook_secret: str = ""
     worker_concurrency: int = Field(default=4, ge=1)
+    # Proxies whose X-Forwarded-For/-Proto are trusted (comma-separated IPs/CIDRs, or "*").
+    forwarded_allow_ips: str = "127.0.0.1"
     demo: bool = False
     cookie_secure: bool | None = None
     seed_demo: bool = False

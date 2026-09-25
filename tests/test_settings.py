@@ -89,3 +89,11 @@ def test_require_database():
     with pytest.raises(ConfigError, match="OPENFORMS_DATABASE_URL is required"):
         load_settings().require_database()
     load_settings(database_url="postgres://x").require_database()
+
+
+def test_forwarded_allow_ips(monkeypatch):
+    from openforms.settings import load_settings
+
+    assert load_settings().forwarded_allow_ips == "127.0.0.1"
+    monkeypatch.setenv("OPENFORMS_FORWARDED_ALLOW_IPS", "10.0.0.0/8,172.16.0.0/12")
+    assert load_settings().forwarded_allow_ips == "10.0.0.0/8,172.16.0.0/12"

@@ -64,7 +64,14 @@ def serve() -> None:
     host, port = settings.listen_host_port
     # uvicorn configures only its own loggers; route the app's (seed, mail, jobs) to stderr too
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s: %(message)s")
-    uvicorn.run(create_app(settings), host=host, port=port, log_level="info", proxy_headers=False)
+    uvicorn.run(
+        create_app(settings),
+        host=host,
+        port=port,
+        log_level="info",
+        proxy_headers=True,
+        forwarded_allow_ips=settings.forwarded_allow_ips,
+    )
 
 
 @app.command

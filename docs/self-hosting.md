@@ -62,6 +62,7 @@ docker compose exec openforms openforms admin create-user \
 | `OPENFORMS_SMTP_USERNAME` / `OPENFORMS_SMTP_PASSWORD` | none (empty) | SMTP credentials |
 | `OPENFORMS_SMTP_FROM` | `openforms@localhost` | Sender address |
 | `OPENFORMS_WEBHOOK_SECRET` | none (empty) | HMAC secret for `X-OpenForms-Signature`; when empty, webhooks are unsigned |
+| `OPENFORMS_FORWARDED_ALLOW_IPS` | `127.0.0.1` | Reverse proxies whose `X-Forwarded-For`/`X-Forwarded-Proto` are trusted (comma-separated IPs or CIDRs, `*` for any). Set it to your proxy's address so rate limits apply per client, not per proxy |
 | `OPENFORMS_WORKER_CONCURRENCY` | `4` | Parallel background jobs per instance |
 | `OPENFORMS_DEMO` | `false` | Demo mode: shows demo accounts on the login page and enables the /demo reviewer simulation. **Never enable in production.** |
 | `OPENFORMS_SEED_DEMO` | `false` | Seed the demo bundle and demo users on start |

@@ -38,5 +38,6 @@ class RateLimiter:
 
 
 def client_ip(request: Request) -> str:
-    """The peer address (a proxy may rewrite it with --proxy-headers)."""
+    """The client address; ``openforms serve`` resolves it from X-Forwarded-For when the
+    peer is in OPENFORMS_FORWARDED_ALLOW_IPS."""
     return request.client.host if request.client else ""
