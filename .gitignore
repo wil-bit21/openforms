@@ -23,3 +23,6 @@ __pycache__/
 .ruff_cache/
 /src/openforms/server/ui/*
 !/src/openforms/server/ui/.gitkeep
+
+# Claude Code: personal overrides of .claude/settings.json
+.claude/settings.local.json

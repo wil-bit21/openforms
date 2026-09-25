@@ -2,6 +2,8 @@
 
 **Forms as code. Workflows built in.**
 
+[Project site](https://openforms.github.io/openforms/) · [Running it](RUNNING.md)
+
 openforms is an open-source, self-hosted form platform for developers, and an alternative to Typeform and Tally for teams that want their forms in git.
 
 - **Forms as code.** Forms and workflows are YAML or JSON files. `openforms push` deploys them; `openforms pull --check` catches drift in CI.
@@ -65,6 +67,7 @@ openforms validate && openforms push
 
 ## Documentation
 
+- [Running it](RUNNING.md): every way to run the stack (Docker Compose, from source, tests, the project site)
 - [Getting started](docs/getting-started.md)
 - [Form definitions](docs/definitions.md)
 - [Workflows](docs/workflows.md)

@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>openforms — forms as code</title>
+<meta name="description" content="openforms is an open-source, self-hosted form platform with submission workflows built in. Forms and workflows are YAML or JSON files, deployed with a CLI." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23111318%22/><path d=%22M28 30h44M28 50h44M28 70h28%22 stroke=%22%2300d3a7%22 stroke-width=%228%22 stroke-linecap=%22round%22/></svg>" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-raised: #f6f7f9;
+    --text: #14161a;
+    --text-muted: #565c66;
+    --border: #e3e5e9;
+    --accent: #0e8f77;
+    --accent-strong: #086b59;
+    --accent-contrast: #ffffff;
+    --code-bg: #14161a;
+    --code-text: #e6e8eb;
+    --shadow: 0 1px 2px rgba(20, 22, 26, 0.06), 0 8px 24px rgba(20, 22, 26, 0.05);
+    --radius: 12px;
+    --font-sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1115;
+      --bg-raised: #171a20;
+      --text: #eceef1;
+      --text-muted: #9aa1ac;
+      --border: #262a33;
+      --accent: #2dd4b3;
+      --accent-strong: #59e3c8;
+      --accent-contrast: #071310;
+      --code-bg: #0a0c0f;
+      --code-text: #dfe3e8;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1115;
+    --bg-raised: #171a20;
+    --text: #eceef1;
+    --text-muted: #9aa1ac;
+    --border: #262a33;
+    --accent: #2dd4b3;
+    --accent-strong: #59e3c8;
+    --accent-contrast: #071310;
+    --code-bg: #0a0c0f;
+    --code-text: #dfe3e8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-strong); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, pre { font-family: var(--font-mono); }
+  code {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    font-size: 0.9em;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 13.5px;
+    line-height: 1.6;
+    box-shadow: var(--shadow);
+  }
+  pre code { background: none; border: none; padding: 0; color: inherit; }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 650;
+    font-size: 16px;
+    color: var(--text);
+  }
+  .brand:hover { text-decoration: none; }
+  .brand .mark {
+    width: 26px; height: 26px; border-radius: 7px;
+    background: var(--text);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .brand .mark svg { display: block; }
+  nav.links { display: flex; gap: 22px; align-items: center; font-size: 14.5px; }
+  nav.links a { color: var(--text-muted); }
+  nav.links a:hover { color: var(--text); text-decoration: none; }
+  .theme-toggle {
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    color: var(--text-muted);
+    border-radius: 999px;
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  .theme-toggle:hover { color: var(--text); }
+
+  .hero { padding: 84px 0 56px; }
+  .hero .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text-muted);
+    border: 1px solid var(--border); background: var(--bg-raised);
+    padding: 5px 12px; border-radius: 999px; margin-bottom: 22px;
+  }
+  .hero .kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  h1 {
+    font-size: clamp(34px, 5vw, 52px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+    max-width: 16ch;
+  }
+  h1 em { font-style: normal; color: var(--accent-strong); }
+  .lede {
+    font-size: 19px;
+    color: var(--text-muted);
+    max-width: 60ch;
+    margin: 0 0 32px;
+  }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 40px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px;
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 14.5px;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .btn:hover { text-decoration: none; }
+  .btn-primary { background: var(--accent); color: var(--accent-contrast); }
+  .btn-primary:hover { background: var(--accent-strong); }
+  .btn-secondary { background: var(--bg-raised); color: var(--text); border-color: var(--border); }
+  .btn-secondary:hover { background: var(--bg); }
+
+  .quickstart {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    max-width: 640px;
+  }
+  .quickstart pre { margin: 0; box-shadow: none; }
+  .quickstart .copy-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px 2px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+  .copy-btn {
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 12.5px; font-family: var(--font-sans);
+    padding: 2px 6px; border-radius: 5px;
+  }
+  .copy-btn:hover { color: var(--text); background: var(--border); }
+
+  section { padding: 56px 0; border-top: 1px solid var(--border); }
+  section > h2 {
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+  }
+  section > .section-lede { color: var(--text-muted); margin: 0 0 32px; max-width: 60ch; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card p { margin: 0; color: var(--text-muted); font-size: 14.5px; }
+  .card .icon { font-size: 20px; margin-bottom: 10px; display: block; }
+
+  .example { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 720px) { .example { grid-template-columns: 1fr; } }
+  .example figure { margin: 0; }
+  .example figcaption {
+    font-size: 12.5px; color: var(--text-muted); margin-bottom: 8px;
+    font-family: var(--font-mono);
+  }
+  .example pre { font-size: 12.5px; height: 100%; }
+
+  .arch {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    padding: 24px;
+    overflow-x: auto;
+  }
+  .arch svg { display: block; min-width: 640px; width: 100%; height: auto; }
+  .arch text { font-family: var(--font-mono); }
+
+  table.env { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.env th, table.env td {
+    text-align: left; padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.env th { color: var(--text-muted); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  table.env td code { white-space: nowrap; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0 60px;
+    color: var(--text-muted);
+    font-size: 13.5px;
+    display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; align-items: center;
+  }
+  footer .flinks { display: flex; gap: 18px; }
+  footer a { color: var(--text-muted); }
+  footer a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap topbar">
+    <a class="brand" href="#top">
+      <span class="mark">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h9" stroke="#00d3a7" stroke-width="2.6" stroke-linecap="round"/></svg>
+      </span>
+      openforms
+    </a>
+    <nav class="links">
+      <a href="#quickstart">Quickstart</a>
+      <a href="#features">Features</a>
+      <a href="#example">Example</a>
+      <a href="#architecture">Architecture</a>
+      <a href="https://github.com/openforms/openforms" target="_blank" rel="noopener">GitHub</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" id="top" style="border-top: none; padding-top: 84px;">
+    <div class="kicker"><span class="dot"></span> MIT licensed · self-hosted · one container</div>
+    <h1>Forms as code. <em>Workflows built in.</em></h1>
+    <p class="lede">
+      openforms is an open-source, self-hosted form platform for developers — an alternative to
+      Typeform and Tally for teams that want their forms in git. Define forms and their review
+      workflows as YAML, push them with a CLI, and collect and triage submissions from a real
+      admin UI.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#quickstart">Run it in two minutes</a>
+      <a class="btn btn-secondary" href="https://github.com/openforms/openforms" target="_blank" rel="noopener">View on GitHub</a>
+      <a class="btn btn-secondary" href="https://github.com/openforms/openforms/blob/main/docs/getting-started.md" target="_blank" rel="noopener">Read the docs</a>
+    </div>
+
+    <div class="quickstart" id="quickstart">
+      <div class="copy-row">
+        <span>docker compose</span>
+        <button class="copy-btn" data-copy-target="qs-code">Copy</button>
+      </div>
+      <pre><code id="qs-code">git clone https://github.com/openforms/openforms && cd openforms
+docker compose --profile app up -d --build
+
+open http://localhost:8080/demo    # guided demo
+open http://localhost:8080/admin   # admin inbox (demo1234)
+open http://localhost:8025         # Mailpit catches every demo email</code></pre>
+    </div>
+  </section>
+
+  <section id="features">
+    <h2>What you get</h2>
+    <p class="section-lede">One Python process (FastAPI + SQLAlchemy) with the web UI inside, backed by PostgreSQL.</p>
+    <div class="grid">
+      <div class="card">
+        <span class="icon">📄</span>
+        <h3>Forms as code</h3>
+        <p>Forms and workflows are YAML or JSON files. <code>openforms push</code> deploys them; <code>openforms pull --check</code> catches drift in CI.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🔀</span>
+        <h3>Submission workflows</h3>
+        <p>Every form can have a state machine with custom states, role and required-field guards, and actions that run reliably in the background with retries.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🔌</span>
+        <h3>Headless first, hosted too</h3>
+        <p>Use the REST API, the TypeScript SDK, the React renderer, or share a hosted page (<code>/f/&lt;slug&gt;</code>) and embed it anywhere with two lines of HTML.</p>
+      </div>
+      <div class="card">
+        <span class="icon">🗂️</span>
+        <h3>A real admin UI</h3>
+        <p>A reviewer inbox, submission timelines, and visual editors for forms and workflows — no separate dashboard app to run.</p>
+      </div>
+      <div class="card">
+        <span class="icon">⚡</span>
+        <h3>Actions with retries</h3>
+        <p>Webhook, email and auto-assign actions are written to a Postgres job queue in the same transaction as the state change: never fired on a failed transition, always fired (at least once) on a committed one.</p>
+      </div>
+      <div class="card">
+        <span class="icon">📦</span>
+        <h3>One container</h3>
+        <p>A single Docker image ships the API, the job worker and the built web UI. Add PostgreSQL and you're running in production.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="example">
+    <h2>A form and its workflow</h2>
+    <p class="section-lede">Everything is a file. Validate offline, then push.</p>
+    <div class="example">
+      <figure>
+        <figcaption>openforms/forms/contact.yaml</figcaption>
+        <pre><code>slug: contact
+title: Contact us
+workflow: contact-triage
+settings: { public: true }
+fields:
+  - { key: email, type: email,
+      label: Email, required: true }
+  - { key: message, type: textarea,
+      label: Message, required: true }</code></pre>
+      </figure>
+      <figure>
+        <figcaption>openforms/workflows/contact-triage.yaml</figcaption>
+        <pre><code>slug: contact-triage
+title: Contact triage
+initial: open
+states:
+  - { key: open, label: Open }
+  - { key: resolved, label: Resolved,
+      terminal: true }
+transitions:
+  - key: resolve
+    from: [open]
+    to: resolved
+    guard: { roles: [support] }
+    actions:
+      - { type: email,
+          to: "{{submission.data.email}}",
+          subject: "Re: your message" }</code></pre>
+      </figure>
+    </div>
+    <p style="margin-top:18px;"><code>openforms validate &amp;&amp; openforms push</code></p>
+  </section>
+
+  <section id="architecture">
+    <h2>Architecture</h2>
+    <p class="section-lede">One process handles the hosted pages, the admin UI, the API and the workflow engine; a background worker drains the job queue.</p>
+    <div class="arch">
+      <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Browsers, your app and the CLI talk to the openforms FastAPI process, which reads and writes PostgreSQL and enqueues jobs that run webhook, email and assign actions.">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="currentColor" />
+          </marker>
+        </defs>
+        <g style="color: var(--text-muted)">
+          <!-- clients -->
+          <g style="color: var(--text)">
+            <rect x="10" y="18" width="140" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="80" y="43" text-anchor="middle" font-size="13" fill="currentColor">browser</text>
+
+            <rect x="10" y="70" width="140" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="80" y="95" text-anchor="middle" font-size="13" fill="currentColor">your app</text>
+
+            <rect x="10" y="122" width="140" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="80" y="147" text-anchor="middle" font-size="13" fill="currentColor">CLI</text>
+          </g>
+
+          <!-- arrows to server -->
+          <path d="M150 38 H240" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <path d="M150 90 H240" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <path d="M150 142 H240" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+          <!-- server box -->
+          <g style="color: var(--accent-strong)">
+            <rect x="240" y="10" width="420" height="160" rx="10" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <text x="450" y="32" text-anchor="middle" font-size="12.5" fill="currentColor" font-weight="600">openforms (FastAPI, one process)</text>
+          </g>
+          <g style="color: var(--text)">
+            <text x="256" y="58" font-size="12">/f, /s (hosted) · /admin (inbox + editors) · /demo · /embed.js</text>
+            <text x="256" y="82" font-size="12">/api/v1 → definitions store → submissions → workflow engine</text>
+            <path d="M256 96 H648" stroke="var(--border)" stroke-width="1"/>
+            <text x="256" y="118" font-size="12">background worker → job queue</text>
+          </g>
+          <path d="M420 118 H520" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <g style="color:var(--text-muted)">
+            <rect x="520" y="98" width="120" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="580" y="123" text-anchor="middle" font-size="11.5" fill="currentColor">webhook / email / assign</text>
+          </g>
+
+          <!-- arrow down to postgres -->
+          <path d="M450 170 V200" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <g style="color: var(--text)">
+            <rect x="360" y="200" width="180" height="42" rx="8" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <text x="450" y="226" text-anchor="middle" font-size="13" fill="currentColor">PostgreSQL</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <section id="run">
+    <h2>Running it</h2>
+    <p class="section-lede">The full reference lives in <code>RUNNING.md</code>. The short version:</p>
+    <table class="env">
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>docker compose --profile app up -d --build</code></td><td>Full stack: Postgres, Mailpit, openforms — seeded demo included.</td></tr>
+        <tr><td><code>docker compose up -d postgres mailpit</code></td><td>Dev services only, run the server from source with <code>uv run openforms serve</code>.</td></tr>
+        <tr><td><code>make e2e</code></td><td>Full stack + Playwright end-to-end tests.</td></tr>
+        <tr><td><code>docker compose --profile app down -v</code></td><td>Stop everything and remove the database volume.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<footer class="wrap">
+  <div>© openforms contributors · MIT licensed</div>
+  <div class="flinks">
+    <a href="https://github.com/openforms/openforms">GitHub</a>
+    <a href="https://github.com/openforms/openforms/blob/main/RUNNING.md">Running it</a>
+    <a href="https://github.com/openforms/openforms/blob/main/docs/self-hosting.md">Self-hosting</a>
+    <a href="https://github.com/openforms/openforms/blob/main/LICENSE">License</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var stored = null;
+    try { stored = localStorage.getItem("openforms-theme"); } catch (e) {}
+    if (stored === "light" || stored === "dark") root.setAttribute("data-theme", stored);
+
+    var toggle = document.getElementById("theme-toggle");
+    toggle.addEventListener("click", function () {
+      var current = root.getAttribute("data-theme");
+      var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var effectiveDark = current ? current === "dark" : prefersDark;
+      var next = effectiveDark ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("openforms-theme", next); } catch (e) {}
+    });
+
+    document.querySelectorAll(".copy-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var target = document.getElementById(btn.getAttribute("data-copy-target"));
+        if (!target) return;
+        var text = target.textContent;
+        var done = function () {
+          var original = btn.textContent;
+          btn.textContent = "Copied";
+          setTimeout(function () { btn.textContent = original; }, 1400);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, done);
+        } else {
+          done();
+        }
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
