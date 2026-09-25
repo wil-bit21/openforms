@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { DemoCredentials } from "../components/DemoCredentials";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { client } from "../api";
 import { qk } from "../queryKeys";
 import { errorCode, errorMessage } from "../lib/errors";
@@ -36,7 +36,11 @@ export function LoginPage() {
         <h1>Sign in to openforms</h1>
         {login.isError && (
           <p role="alert" className="error">
-            {errorCode(login.error) === "invalid_credentials" ? "Email or password is incorrect." : errorMessage(login.error)}
+            {errorCode(login.error) === "invalid_credentials"
+              ? "Email or password is incorrect."
+              : errorCode(login.error) === "rate_limited"
+                ? "Too many sign-in attempts. Wait a few minutes and try again."
+                : errorMessage(login.error)}
           </p>
         )}
         <div className="field">
@@ -50,6 +54,7 @@ export function LoginPage() {
         <button type="submit" className="btn btn-primary" disabled={login.isPending}>
           {login.isPending ? "Signing in…" : "Sign in"}
         </button>
+        <Link to="/forgot-password">Forgot your password?</Link>
       </form>
       <DemoCredentials
         onPick={(email, password) => {

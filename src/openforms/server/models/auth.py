@@ -18,12 +18,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...definition import Problem, ValidationError
 from ...definition.common import is_bare_email
 from ..database import orm_models as orm
-from ..exceptions import EmailTaken, InvalidCredentials, NotFound, Unauthenticated
+from ..exceptions import EmailTaken, InvalidCredentials, InvalidResetToken, NotFound, Unauthenticated
 from ..schemas.core import PRINCIPAL_API_KEY, PRINCIPAL_USER, ROLE_ADMIN, ApiKey, Principal, User
 from ._db import is_unique_violation
 
 BCRYPT_ROUNDS = 12  # tests lower this
 SESSION_TTL = dt.timedelta(days=30)
+RESET_TTL = dt.timedelta(hours=1)
 API_KEY_PREFIX = "ofk_"
 DEFAULT_ORG_LOCK = 7243001
 _BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -277,6 +278,47 @@ async def login(session: AsyncSession, email: str, password: str) -> tuple[str, 
     )
     await session.flush()
     return token, _user(u)
+
+
+async def request_password_reset(session: AsyncSession, email: str) -> tuple[str, User] | None:
+    """Issue a single-use reset token for the user with ``email`` (None when there is no
+    such user). Earlier unused tokens of that user stop working."""
+    e = email.strip().lower()
+    u = await session.scalar(
+        sa.select(orm.User).where(sa.func.lower(orm.User.email) == e).order_by(orm.User.created_at).limit(1)
+    )
+    await session.execute(sa.delete(orm.PasswordReset).where(orm.PasswordReset.expires_at < sa.func.now()))
+    if u is None:
+        return None
+    await session.execute(sa.delete(orm.PasswordReset).where(orm.PasswordReset.user_id == u.id))
+    token = random_token(32)
+    session.add(
+        orm.PasswordReset(token_hash=hash_token(token), user_id=u.id, expires_at=dt.datetime.now(dt.UTC) + RESET_TTL)
+    )
+    await session.flush()
+    return token, _user(u)
+
+
+async def reset_password(session: AsyncSession, token: str, password: str) -> User:
+    """Set a new password with a reset token. The token is consumed and every session of
+    the user is signed out."""
+    if p := _password_problem(password):
+        raise ValidationError([p])
+    row = await session.scalar(
+        sa.select(orm.PasswordReset)
+        .where(orm.PasswordReset.token_hash == hash_token(token), orm.PasswordReset.expires_at > sa.func.now())
+        .with_for_update()
+    )
+    if not token or row is None:
+        raise InvalidResetToken()
+    u = await session.scalar(sa.select(orm.User).where(orm.User.id == row.user_id).with_for_update())
+    if u is None:
+        raise InvalidResetToken()
+    u.password_hash = await _hash_password(password)
+    await session.execute(sa.delete(orm.PasswordReset).where(orm.PasswordReset.user_id == u.id))
+    await session.execute(sa.delete(orm.Session).where(orm.Session.user_id == u.id))
+    await session.flush()
+    return _user(u)
 
 
 async def logout(session: AsyncSession, token: str) -> None:

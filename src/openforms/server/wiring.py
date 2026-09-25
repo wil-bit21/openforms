@@ -11,7 +11,7 @@ from typing import Any
 import httpx
 
 from .actions import ActionDeps, register
-from .actions.mailer import Mailer
+from .actions.mailer import Mailer, new_mailer
 from .api.context import AppContext
 from .services.jobs import Queue
 from .workflow import Engine
@@ -24,6 +24,7 @@ def wire_workflow(
 ) -> None:
     """Build the queue and engine, hook onSubmit actions into submission creation and
     register the action handlers."""
+    mailer = mailer or new_mailer(ctx.settings)
     queue = Queue(ctx.db)
     engine = Engine(ctx.db, queue)
     register(queue, ActionDeps(settings=ctx.settings, db=ctx.db, mailer=mailer, http_client=http_client))
@@ -31,7 +32,9 @@ def wire_workflow(
     async def available(session: Any, principal: Any, sub: Any) -> list[dict[str, Any]]:
         return [a.to_dict() for a in await engine.available(session, principal, sub)]
 
-    ctx.services.update(queue=queue, engine=engine, on_created=engine.on_created, available_transitions=available)
+    ctx.services.update(
+        mailer=mailer, queue=queue, engine=engine, on_created=engine.on_created, available_transitions=available
+    )
 
 
 def start_worker(ctx: AppContext) -> Callable[[], Awaitable[None]]:

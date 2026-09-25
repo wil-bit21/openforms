@@ -16,3 +16,9 @@ export async function listMessages(): Promise<MailpitMessage[]> {
 export async function clearMessages(): Promise<void> {
   await fetch(`${MAILPIT_URL}/api/v1/messages`, { method: "DELETE" });
 }
+
+export async function messageText(id: string): Promise<string> {
+  const res = await fetch(`${MAILPIT_URL}/api/v1/message/${id}`);
+  if (!res.ok) throw new Error(`mailpit: ${res.status}`);
+  return ((await res.json()) as { Text?: string }).Text ?? "";
+}

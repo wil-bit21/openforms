@@ -9,7 +9,7 @@ Base path: `/api/v1`. All bodies are JSON with camelCase keys, and timestamps ar
 | API key | `Authorization: Bearer ofk_…`. Create keys with `openforms admin create-api-key` or in the admin UI. Keys carry roles, like users. |
 | Session | `POST /auth/login` sets the `of_session` cookie (HttpOnly, 30 days). Used by the admin UI. |
 
-Endpoints under `/public/*`, plus `/auth/login` and `/healthz`, need no authentication.
+Endpoints under `/public/*`, plus `/auth/login`, `/auth/password-reset*` and `/healthz`, need no authentication.
 
 ## Errors
 
@@ -19,13 +19,13 @@ Endpoints under `/public/*`, plus `/auth/login` and `/healthz`, need no authenti
 
 | Status | `code` | When |
 |---|---|---|
-| 400 | `bad_request` | Malformed JSON or body larger than 1 MiB |
+| 400 | `bad_request`, `invalid_token` | Malformed JSON or body larger than 1 MiB; an invalid or expired password reset token |
 | 401 | `unauthenticated` / `invalid_credentials` | Missing/invalid credentials, wrong password |
 | 403 | `forbidden` | Not an admin, or a transition guard rejected your roles |
 | 404 | `not_found` | Unknown resource, or a non-public form on a public endpoint |
 | 409 | `email_taken`, `invalid_state`, `state_conflict`, `no_workflow` | Conflicts |
 | 422 | `validation_failed`, `unknown_transition` | Invalid definitions, submission data or transition input |
-| 429 | `rate_limited` | More than 20 public submissions per minute from one IP |
+| 429 | `rate_limited` | Too many requests (`Retry-After` says how long to wait): public submissions (20/min per IP), sign-in (20 per 5 min per IP, 10 per 15 min per email), password reset (5 per 15 min per IP, 3 per hour per email) |
 | 500 | `internal` | Server error (details are logged) |
 
 ## Pagination
@@ -55,6 +55,8 @@ Keep the `receiptToken`. It is the only way to read the public status, and it is
 |---|---|---|---|
 | POST | `/auth/login` | none | `{email, password}` → `{user}` + cookie |
 | POST | `/auth/logout` | session | 204 |
+| POST | `/auth/password-reset` | none | `{email}` → 202 always; emails a reset link (valid 1 hour) to `OPENFORMS_BASE_URL/admin/reset-password?token=…` if the user exists |
+| POST | `/auth/password-reset/confirm` | none | `{token, password}` → 204; the token is single-use and every session of the user is signed out. 400 `invalid_token` if it is unknown, used or expired |
 | GET | `/auth/me` | any | `{"principal": {kind, id, name, email, roles}}` |
 | GET / POST | `/users` | admin | List / create `{email, name, password, roles}` |
 | PATCH / DELETE | `/users/{id}` | admin | Update `{name?, password?, roles?}` / delete |

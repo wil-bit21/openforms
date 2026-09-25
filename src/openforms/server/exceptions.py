@@ -61,3 +61,7 @@ class NoWorkflow(OpenFormsError):
 
 class JobNotFound(NotFound):
     message = "job not found or not failed"
+
+
+class InvalidResetToken(OpenFormsError):
+    status, code, message = 400, "invalid_token", "this password reset link is invalid or has expired"

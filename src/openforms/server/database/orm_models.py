@@ -47,6 +47,14 @@ class Session(Base):
     created_at: Mapped[dt.datetime] = mapped_column(TS, server_default=func.now())
 
 
+class PasswordReset(Base):
+    __tablename__ = "password_resets"
+    token_hash: Mapped[str] = mapped_column(Text, primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
+    expires_at: Mapped[dt.datetime] = mapped_column(TS)
+    created_at: Mapped[dt.datetime] = mapped_column(TS, server_default=func.now())
+
+
 class ApiKey(Base):
     __tablename__ = "api_keys"
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

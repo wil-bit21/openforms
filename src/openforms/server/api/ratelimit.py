@@ -41,3 +41,19 @@ def client_ip(request: Request) -> str:
     """The client address; ``openforms serve`` resolves it from X-Forwarded-For when the
     peer is in OPENFORMS_FORWARDED_ALLOW_IPS."""
     return request.client.host if request.client else ""
+
+
+def shared_limiter(services: dict, name: str, limit: int, window: float) -> RateLimiter:
+    """The app-wide limiter called ``name`` (created on first use)."""
+    lim = services.get(name)
+    if lim is None:
+        lim = services[name] = RateLimiter(limit, window)
+    return lim
+
+
+def too_many_requests(message: str, retry_after: float):
+    from .errors import envelope
+
+    resp = envelope(429, "rate_limited", message)
+    resp.headers["Retry-After"] = str(int(retry_after))
+    return resp

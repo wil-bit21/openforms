@@ -35,6 +35,7 @@ async def test_migrate_creates_all_tables(database):
         "submissions",
         "submission_events",
         "jobs",
+        "password_resets",
         "alembic_version",
     } <= names
 
@@ -92,9 +93,13 @@ async def test_adopts_a_database_created_by_the_go_server(db_url):
     try:
         async with db.transaction() as s:
             await s.execute(sa.text("DROP TABLE alembic_version"))
-        await migrate(db.engine)  # tables exist: 0001 is recorded without re-creating them
+            await s.execute(sa.text("DROP TABLE password_resets"))  # added after the Go server
+        await migrate(db.engine)  # tables exist: 0001 is recorded without re-creating them, then 0002 runs
         async with db.session() as s:
-            assert (await s.execute(sa.text("SELECT version_num FROM alembic_version"))).scalar_one() == "0001_initial"
+            assert (
+                await s.execute(sa.text("SELECT version_num FROM alembic_version"))
+            ).scalar_one() == "0002_password_resets"
+            assert (await s.execute(sa.text("SELECT to_regclass('password_resets') IS NOT NULL"))).scalar()
     finally:
         await db.dispose()
 

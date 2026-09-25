@@ -57,7 +57,7 @@ docker compose exec openforms openforms admin create-user \
 | `OPENFORMS_HTTP_ADDR` | `:8080` | Listen address |
 | `OPENFORMS_BASE_URL` | `http://localhost:8080` | Public URL; used in links in emails and webhooks |
 | `OPENFORMS_COOKIE_SECURE` | `true` when `BASE_URL` is https | Mark the session cookie `Secure` |
-| `OPENFORMS_SMTP_HOST` | none (empty) | SMTP server; when empty, emails are logged instead of sent |
+| `OPENFORMS_SMTP_HOST` | none (empty) | SMTP server; when empty, emails (including password reset links) are logged instead of sent |
 | `OPENFORMS_SMTP_PORT` | `1025` | SMTP port |
 | `OPENFORMS_SMTP_USERNAME` / `OPENFORMS_SMTP_PASSWORD` | none (empty) | SMTP credentials |
 | `OPENFORMS_SMTP_FROM` | `openforms@localhost` | Sender address |

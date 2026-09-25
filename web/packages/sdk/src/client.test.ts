@@ -102,6 +102,8 @@ const cases: Case[] = [
   { name: "getPublicStatus", call: (c) => c.getPublicStatus("s1", "a/b+c"), method: "GET", path: "/api/v1/public/submissions/s1?token=a%2Fb%2Bc", response: status, expected: status },
   { name: "login", call: (c) => c.login("rita@example.com", "secret123"), method: "POST", path: "/api/v1/auth/login", body: { email: "rita@example.com", password: "secret123" }, response: { user }, expected: user },
   { name: "logout", call: (c) => c.logout(), method: "POST", path: "/api/v1/auth/logout", status: 204, expected: undefined },
+  { name: "requestPasswordReset", call: (c) => c.requestPasswordReset("rita@example.com"), method: "POST", path: "/api/v1/auth/password-reset", body: { email: "rita@example.com" }, status: 202, expected: undefined },
+  { name: "confirmPasswordReset", call: (c) => c.confirmPasswordReset("tok", "new-secret-1"), method: "POST", path: "/api/v1/auth/password-reset/confirm", body: { token: "tok", password: "new-secret-1" }, status: 204, expected: undefined },
   { name: "me", call: (c) => c.me(), method: "GET", path: "/api/v1/auth/me", response: { principal }, expected: principal },
   { name: "listForms", call: (c) => c.listForms(), method: "GET", path: "/api/v1/forms", response: { items: [formSummary] }, expected: [formSummary] },
   { name: "getForm", call: (c) => c.getForm("contact"), method: "GET", path: "/api/v1/forms/contact", response: { form: formRecord }, expected: formRecord },
@@ -157,7 +159,7 @@ describe("OpenFormsClient endpoints", () => {
   it("covers every client method listed in the spec", () => {
     const names = new Set(cases.map((c) => c.name));
     const spec = [
-      "getPublicForm", "submitPublic", "getPublicStatus", "login", "logout", "me", "listForms", "getForm", "putForm",
+      "getPublicForm", "submitPublic", "getPublicStatus", "login", "logout", "requestPasswordReset", "confirmPasswordReset", "me", "listForms", "getForm", "putForm",
       "formVersions", "formVersion", "listWorkflows", "getWorkflow", "putWorkflow", "workflowVersions", "workflowVersion",
       "validateDefinitions", "applyDefinitions", "exportDefinitions", "listSubmissions", "getSubmission", "createSubmission",
       "transition", "updateFields", "comment", "assign", "listUsers", "createUser", "updateUser", "deleteUser",

@@ -164,6 +164,16 @@ export class OpenFormsClient {
     await this.request<void>("POST", "/auth/logout");
   }
 
+  /** Emails a reset link if the address belongs to a user. Always resolves (202), whether or not it does. */
+  async requestPasswordReset(email: string): Promise<void> {
+    await this.request<void>("POST", "/auth/password-reset", { body: { email } });
+  }
+
+  /** Sets a new password with the token from the reset email; every session of the user is signed out. */
+  async confirmPasswordReset(token: string, password: string): Promise<void> {
+    await this.request<void>("POST", "/auth/password-reset/confirm", { body: { token, password } });
+  }
+
   async me(): Promise<Principal> {
     return (await this.request<{ principal: Principal }>("GET", "/auth/me")).principal;
   }

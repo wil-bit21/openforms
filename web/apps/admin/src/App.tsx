@@ -5,13 +5,17 @@ import { RequireAdmin } from "./components/RequireAdmin";
 import { RequireSession } from "./components/RequireSession";
 import { Shell } from "./components/Shell";
 import { createQueryClient } from "./lib/queryClient";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { LoginPage } from "./pages/LoginPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { routes } from "./routes";
 
 export function buildRoutes(): RouteObject[] {
   return [
     { path: "/login", element: <LoginPage /> },
+    { path: "/forgot-password", element: <ForgotPasswordPage /> },
+    { path: "/reset-password", element: <ResetPasswordPage /> },
     {
       path: "/",
       element: (
